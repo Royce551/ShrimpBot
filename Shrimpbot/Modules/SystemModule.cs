@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Shrimpbot.Configuration;
+using Shrimpbot.Services.Configuration;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 
 namespace Shrimpbot.Modules
 {
+    [Name("System")]
+    [Summary("Basic interaction with Shrimpbot")]
     public class SystemModule : ModuleBase<SocketCommandContext>
     {
         public DiscordSocketClient Client { get; set; }
@@ -23,24 +25,30 @@ namespace Shrimpbot.Modules
             watch.Start();
             var message = await ReplyAsync("pinging");
             watch.Stop();
-            await message.ModifyAsync(msg => msg.Content = $"Ping took {watch.ElapsedMilliseconds}ms!");
+            await message.ModifyAsync(msg => msg.Content = $"Pong! I'm here! That took {watch.ElapsedMilliseconds}ms.");
         }
         [Command("help")]
-        [Summary("Provides a list of commands")]
+        [Summary("Gets a list of commands")]
         public async Task Help()
         {
-            List<CommandInfo> commands = CommandService.Commands.ToList();
+            List<ModuleInfo> modules = CommandService.Modules.ToList();
             EmbedBuilder embedBuilder = new EmbedBuilder();
 
-            foreach (CommandInfo command in commands)
+            foreach (ModuleInfo module in modules)
             {
-                // Get the command Summary attribute information
-                string embedFieldText = command.Summary ?? "No description available\n";
+                string summary = $"{module.Summary}\r\n\r\n";
+                
+                foreach (CommandInfo command in module.Commands)
+                {
+                    // Get the command Summary attribute information
+                    string embedFieldText = command.Summary ?? "No description available\n";
 
-                embedBuilder.AddField(command.Name, embedFieldText);
+                    summary += $"{command.Name} - {command.Summary}\n";
+                }
+                embedBuilder.AddField(module.Name, summary);
             }
-
-            await ReplyAsync("Here's a list of commands and their description: ", false, embedBuilder.Build());
+            embedBuilder.Color = new Color(51, 139, 193);
+            await ReplyAsync(":information_source: **Shrimpbot Help**", false, embedBuilder.Build());
         }
         [Command("about")]
         [Summary("Gets information about Shrimpbot")]
@@ -49,8 +57,8 @@ namespace Shrimpbot.Modules
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.ImageUrl = "https://cdn.discordapp.com/attachments/556283742008901645/600468110109048837/Banner.png";
             embedBuilder.AddField($"{ConfigurationFile.Name} {ConfigurationFile.Version}", "by Squid Grill");
-            embedBuilder.AddField("Official Shrimpbot Discord Server", "https://discord.gg/XztEQAh");
-            embedBuilder.Color = ConfigurationFile.AccentColor;
+            embedBuilder.AddField("Official Shrimpbot Discord Server", "https://discord.gg/fuJ6J4s");
+            embedBuilder.Color = new Color(51, 139, 193);
             await Client.CurrentUser.ModifyAsync(x => x.Username = $"{ConfigurationFile.Name} {ConfigurationFile.Version}");
             await ReplyAsync(null, false, embedBuilder.Build());
         }

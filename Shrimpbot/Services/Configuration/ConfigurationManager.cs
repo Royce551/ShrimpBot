@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace Shrimpbot.Configuration
+namespace Shrimpbot.Services.Configuration
 {
 
     static class ConfigurationManager

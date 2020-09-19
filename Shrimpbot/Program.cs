@@ -1,12 +1,11 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Shrimpbot.Configuration;
+using LiteDB;
+using Shrimpbot.Services.Configuration;
+using Shrimpbot.Services.Database;
 using System;
 using System.IO;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Shrimpbot
@@ -17,21 +16,15 @@ namespace Shrimpbot
         {
             var client = new DiscordSocketClient();
             var config = ConfigurationManager.Read();
+            var database = new LiteDatabase(Path.Combine(DatabaseManager.DatabasePath, "database.sdb1"));
             client.Log += Client_Log;
-            client.Ready += Client_Ready;
-
-            var commandHandler = new CommandHandler(client, new CommandService(), config);
+            var commandHandler = new CommandHandler(client, new CommandService(), config, database);
             await commandHandler.InstallCommandsAsync();
 
             await client.LoginAsync(TokenType.Bot, config.Token);
             await client.StartAsync();
 
             while (true) Console.ReadLine();
-        }
-
-        private static Task Client_Ready()
-        {
-            throw new NotImplementedException();
         }
 
         static Task Client_Log(LogMessage msg)

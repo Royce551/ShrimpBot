@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Shrimpbot.Configuration
+namespace Shrimpbot.Services.Configuration
 {
     public enum ReleaseStream
     {

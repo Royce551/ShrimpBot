@@ -2,11 +2,11 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
-using Shrimpbot.Configuration;
+using Shrimpbot.Services.Configuration;
+using Shrimpbot.Services.Database;
+using LiteDB;
 
 namespace Shrimpbot
 {
@@ -16,16 +16,19 @@ namespace Shrimpbot
         private readonly CommandService commands;
         private readonly IServiceProvider services;
         private readonly ConfigurationFile config;
+        private readonly LiteDatabase database;
 
-        public CommandHandler(DiscordSocketClient client, CommandService commands, ConfigurationFile config)
+        public CommandHandler(DiscordSocketClient client, CommandService commands, ConfigurationFile config, LiteDatabase database)
         {
             this.commands = commands;
             this.client = client;
             this.config = config;
+            this.database = database;
 
             services = new ServiceCollection()
                 .AddSingleton(config)
                 .AddSingleton(client)
+                .AddSingleton(database)
                 .BuildServiceProvider();
         }
 
@@ -42,7 +45,7 @@ namespace Shrimpbot
 
             var argPos = 0;
 
-            if (!(message.HasStringPrefix("s#", ref argPos)) || message.Author.IsBot) return;
+            if (!(message.HasStringPrefix(config.Prefix, ref argPos)) || message.Author.IsBot) return;
 
             var context = new SocketCommandContext(client, message);
 
@@ -50,9 +53,9 @@ namespace Shrimpbot
                 context: context,
                 argPos: argPos,
                 services: services);
-
+            Console.WriteLine($"Executed a command!");
             if (!result.IsSuccess)
-                await context.Channel.SendMessageAsync($"ok {result.ErrorReason}");
+                await context.Channel.SendMessageAsync($"Oopsies! {result.ErrorReason}");
         }
     }
 }
