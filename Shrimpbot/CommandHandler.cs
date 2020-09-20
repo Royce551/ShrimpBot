@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Shrimpbot.Services.Configuration;
 using Shrimpbot.Services.Database;
 using LiteDB;
+using Shrimpbot.Services;
+using Discord;
 
 namespace Shrimpbot
 {
@@ -53,7 +55,7 @@ namespace Shrimpbot
                 context: context,
                 argPos: argPos,
                 services: services);
-            Console.WriteLine($"Executed a command!");
+            LoggingService.Log(LogSeverity.Verbose, "Executed a command!");
             if (!result.IsSuccess)
                 await context.Channel.SendMessageAsync($"Oopsies! {result.ErrorReason}");
         }

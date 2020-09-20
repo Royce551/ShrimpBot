@@ -1,4 +1,5 @@
-﻿using LiteDB;
+﻿using Discord;
+using LiteDB;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,6 +15,7 @@ namespace Shrimpbot.Services.Database
             DatabasePath = Path.Combine(Directory.GetCurrentDirectory(),
                                                 "Database"
                                                 );
+            if (!Directory.Exists(DatabasePath)) Directory.CreateDirectory(DatabasePath);
         }
         public static DatabaseUser GetUser(LiteDatabase db, ulong id)
         {
@@ -22,7 +24,7 @@ namespace Shrimpbot.Services.Database
             user = db.GetCollection<DatabaseUser>("Users").FindOne(x => id == x.Id);
             if (user is null)
             {
-                Console.WriteLine($"Making a new user!");
+                LoggingService.Log(LogSeverity.Verbose, "Created a user!");
                 db.GetCollection<DatabaseUser>("Users").Insert(new DatabaseUser { Id = id });
                 user = db.GetCollection<DatabaseUser>("Users").FindOne(x => id == x.Id);
             }

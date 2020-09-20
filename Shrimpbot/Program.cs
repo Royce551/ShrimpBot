@@ -2,6 +2,7 @@
 using Discord.Commands;
 using Discord.WebSocket;
 using LiteDB;
+using Shrimpbot.Services;
 using Shrimpbot.Services.Configuration;
 using Shrimpbot.Services.Database;
 using System;
@@ -29,13 +30,7 @@ namespace Shrimpbot
 
         static Task Client_Log(LogMessage msg)
         {
-            Console.ForegroundColor = msg.Severity switch
-            {
-                LogSeverity.Error => ConsoleColor.Red,
-                LogSeverity.Warning => ConsoleColor.Yellow,
-                _ => ConsoleColor.White
-            };
-            Console.WriteLine($"[{msg.Severity} {DateTime.Now:T}] {msg.Message}");
+            LoggingService.Log(msg.Severity, msg.Message);
             Console.ResetColor();
             return Task.CompletedTask;
         }

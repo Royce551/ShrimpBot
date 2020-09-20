@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Services\Database\LoggingService.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Discord.Net" Version="2.2.0" />
     <PackageReference Include="LiteDB" Version="5.0.9" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.8" />
