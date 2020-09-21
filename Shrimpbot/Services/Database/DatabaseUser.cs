@@ -7,6 +7,14 @@ namespace Shrimpbot.Services.Database
     public class DatabaseUser
     {
         public ulong Id { get; set; }
+        public BotPermissionLevel BotPermissions { get; set; } = BotPermissionLevel.User;
         public int Money { get; set; } = 1000;
+        public int Cuteness { get; set; } = -1;
+    }
+    public enum BotPermissionLevel
+    {
+        User,
+        BotAdministrator,
+        Owner
     }
 }

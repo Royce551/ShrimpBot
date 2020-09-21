@@ -15,7 +15,7 @@ namespace Shrimpbot.Modules
     {
         public DiscordSocketClient Client { get; set; }
         public CommandService CommandService { get; set; }
-        public ConfigurationFile ConfigurationFile { get; set; }
+        public ConfigurationFile Config { get; set; }
 
         [Command("ping")]
         [Summary("Pings Shrimpbot")]
@@ -56,10 +56,10 @@ namespace Shrimpbot.Modules
         {
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.ImageUrl = "https://cdn.discordapp.com/attachments/556283742008901645/600468110109048837/Banner.png";
-            embedBuilder.AddField($"{ConfigurationFile.Name} {ConfigurationFile.Version}", "by Squid Grill");
+            embedBuilder.AddField($"{Config.Name} {Config.Version}", "by Squid Grill");
             embedBuilder.AddField("Official Shrimpbot Discord Server", "https://discord.gg/fuJ6J4s");
             embedBuilder.Color = new Color(51, 139, 193);
-            await Client.CurrentUser.ModifyAsync(x => x.Username = $"{ConfigurationFile.Name} {ConfigurationFile.Version}");
+            await Client.CurrentUser.ModifyAsync(x => x.Username = $"{Config.Name} {Config.Version}");
             await ReplyAsync(null, false, embedBuilder.Build());
         }
     }
