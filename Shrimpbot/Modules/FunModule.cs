@@ -51,9 +51,19 @@ namespace Shrimpbot.Modules
             await ReplyAsync($"What's my number? 1-{maxNumber}. You have {remainingAttempts + 1} attempts. Say 'quit' to quit. Good luck!");
             while (!correctGuess)
             {
-                var response = await NextMessageAsync(true, true);
+                var response = await NextMessageAsync();
+                if (response.Author.Id != Context.User.Id) break;
                 if (response.Content == "quit") return;
-                if (response.Content == number.ToString()) break;
+                if (response.Content == number.ToString())
+                {
+                    if (maxNumber >= 100)
+                    {
+                        await ReplyAsync($":tada: You were correct! Great job! You got 50 {Config.Currency} for your performance.");
+                        runner.Money += 50;
+                        DatabaseManager.WriteUser(Db, runner);
+                    }
+                    else await ReplyAsync($":tada: You were correct! Great job! You didn't get any {Config.Currency} because your max number was lower than usual..");
+                }
                 if (remainingAttempts == 0)
                 {
                     await ReplyAsync($":boom: Oh noo! You lost. The number was {number}.");
@@ -68,13 +78,6 @@ namespace Shrimpbot.Modules
                 else await ReplyAsync("Invalid guess. If you need to quit, type 'quit'.");
                 remainingAttempts--;
             }
-            if (maxNumber >= 100)
-            {
-                await ReplyAsync($":tada: You were correct! Great job! You got 50 {Config.Currency} for your performance.");
-                runner.Money += 50;
-                DatabaseManager.WriteUser(Db, runner);
-            }
-            else await ReplyAsync($":tada: You were correct! Great job! You didn't get any {Config.Currency} because your max number was lower than usual..");
         }
     }
 }
