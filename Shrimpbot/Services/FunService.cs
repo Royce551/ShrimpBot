@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
-using System.Text;
+
 
 namespace Shrimpbot.Services
 {
@@ -36,6 +36,7 @@ namespace Shrimpbot.Services
                 20 => "Very doubtful.",
                 _ => "the dev did a fucky wucky"
             };
+
         }
     }
 }

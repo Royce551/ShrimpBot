@@ -9,6 +9,7 @@ using Shrimpbot.Services.Database;
 using LiteDB;
 using Shrimpbot.Services;
 using Discord;
+using Discord.Addons.Interactive;
 
 namespace Shrimpbot
 {
@@ -29,8 +30,9 @@ namespace Shrimpbot
 
             services = new ServiceCollection()
                 .AddSingleton(config)
-                .AddSingleton(client)
                 .AddSingleton(database)
+                .AddSingleton(client)
+                .AddSingleton<InteractiveService>()
                 .BuildServiceProvider();
         }
 
