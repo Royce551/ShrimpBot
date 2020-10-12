@@ -10,32 +10,49 @@ namespace Shrimpbot.Services.Database
     public class DatabaseManager
     {
         public static string DatabasePath;
+        private static LiteDatabase Database; 
         static DatabaseManager()
         {
             DatabasePath = Path.Combine(Directory.GetCurrentDirectory(),
                                                 "Database"
                                                 );
             if (!Directory.Exists(DatabasePath)) Directory.CreateDirectory(DatabasePath);
+            Database = new LiteDatabase(Path.Combine(DatabasePath, "database.sdb1"));
         }
-        public static DatabaseUser GetUser(LiteDatabase db, ulong id)
+        public static DatabaseUser GetUser(ulong id)
         {
             DatabaseUser user;
 
-            user = db.GetCollection<DatabaseUser>("Users").FindOne(x => id == x.Id);
+            user = Database.GetCollection<DatabaseUser>("Users").FindOne(x => id == x.Id);
             if (user is null)
             {
                 LoggingService.Log(LogSeverity.Verbose, "Created a user!");
-                db.GetCollection<DatabaseUser>("Users").Insert(new DatabaseUser { Id = id });
-                user = db.GetCollection<DatabaseUser>("Users").FindOne(x => id == x.Id);
+                Database.GetCollection<DatabaseUser>("Users").Insert(new DatabaseUser { Id = id });
+                user = Database.GetCollection<DatabaseUser>("Users").FindOne(x => id == x.Id);
             }
             return user;
         }
-        public static void WriteUser(LiteDatabase db, DatabaseUser user)
+        public static void WriteUser(DatabaseUser user)
         {
-            if (!db.GetCollection<DatabaseUser>("Users").Update(user))
+            if (!Database.GetCollection<DatabaseUser>("Users").Update(user))
             {
-                db.GetCollection<DatabaseUser>("Users").Insert(user);
+                Database.GetCollection<DatabaseUser>("Users").Insert(user);
             }
         }
+        public static List<DatabaseImage> GetImages(ImageType type) => 
+            Database.GetCollection<DatabaseImage>("Images").Query()
+            .Where(x => x.Type == type)
+            .ToList();
+        public static void CreateImage(string path, ImageType type, CuteImage image) =>
+            Database.GetCollection<DatabaseImage>("Images").Insert(new DatabaseImage
+            {
+                DatabaseImageId = path,
+                Type = type,
+                Image = image
+            });
+        public static void UpdateImage(DatabaseImage image) =>
+            Database.GetCollection<DatabaseImage>("Images").Update(image);
+
+        public static void ExecuteSql(string sql) => Database.Execute(sql);
     }
 }

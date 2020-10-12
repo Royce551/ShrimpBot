@@ -12,9 +12,7 @@ namespace Shrimpbot.Services.Configuration
         public static string ConfigurationPath;
         static ConfigurationManager()
         {
-            ConfigurationPath = Path.Combine(Directory.GetCurrentDirectory(),
-                                                "Configuration"
-                                                );
+            ConfigurationPath = Path.Combine(Directory.GetCurrentDirectory(), "Configuration");
         }
         public static ConfigurationFile Read()
         {
@@ -22,11 +20,9 @@ namespace Shrimpbot.Services.Configuration
             {
                 Write(new ConfigurationFile());
             }
-            using (StreamReader file = File.OpenText(Path.Combine(ConfigurationPath, "config.json")))
-            {
-                JsonSerializer jsonSerializer = new JsonSerializer();
-                return (ConfigurationFile)jsonSerializer.Deserialize(file, typeof(ConfigurationFile));
-            }
+            using StreamReader file = File.OpenText(Path.Combine(ConfigurationPath, "config.json"));
+            JsonSerializer jsonSerializer = new JsonSerializer();
+            return (ConfigurationFile)jsonSerializer.Deserialize(file, typeof(ConfigurationFile));
         }
         public static void Write(ConfigurationFile config)
         {

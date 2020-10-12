@@ -17,9 +17,8 @@ namespace Shrimpbot
         {
             var client = new DiscordSocketClient();
             var config = ConfigurationManager.Read();
-            var database = new LiteDatabase(Path.Combine(DatabaseManager.DatabasePath, "database.sdb1"));
             client.Log += Client_Log;
-            var commandHandler = new CommandHandler(client, new CommandService(), config, database);
+            var commandHandler = new CommandHandler(client, new CommandService(), config);
             await commandHandler.InstallCommandsAsync();
 
             await client.LoginAsync(TokenType.Bot, config.Token);

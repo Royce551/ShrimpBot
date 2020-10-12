@@ -1,11 +1,14 @@
-﻿using System;
+﻿using Discord;
+using Shrimpbot.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
-
+using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 
 namespace Shrimpbot.Services
 {
-    class FunService
+    public class FunService
     {
         
         public static string GetEightBall()
@@ -38,5 +41,118 @@ namespace Shrimpbot.Services
             };
 
         }
+
+        public static ShrimpBattle CreateBattle(string userName)
+        {
+            var battle = new ShrimpBattle();
+            battle.Protagonist = new ShrimpBattlePerson
+            {
+                Name = userName
+            };
+            var rng = new Random();
+            battle.Enemy = new ShrimpBattlePerson
+            {
+                Name = rng.Next(1, 6) switch
+                {
+                    1 => "Jeremy",
+                    2 => "theBeat",
+                    3 => "Zombie",
+                    4 => "Vampire",
+                    5 => "Random Weeaboo",
+                    _ => "fucky wucky"
+                },
+                Health = rng.Next(75, 125),
+                Mana = rng.Next(40, 60)
+            };    
+            return battle;
+        }
+    }
+    public class ShrimpBattle
+    {
+        public ShrimpBattlePerson Protagonist { get; set; }
+        public ShrimpBattlePerson Enemy { get; set; }
+        public EmbedBuilder GetFormattedStatus(IUser user)
+        {
+            var builder = MessagingUtils.GetShrimpbotEmbedBuilder();
+            builder.WithAuthor(user);
+            builder.WithDescription("placeholder");
+            builder.AddField(Protagonist.Name,
+                $":blue_heart: **Health**: {Protagonist.Health}\n" +
+                $":magic_wand: **Mana**: {Protagonist.Mana}\n");
+            builder.AddField(Enemy.Name,
+                $":hearts: **Health**: {Enemy.Health}\n" +
+                $":magic_wand: **Mana**: {Enemy.Mana}\n");
+            builder.WithFooter("a - Attack; m - Use offensive magic; h - Use healing magic; r or quit - Run");
+            return builder;
+        }
+        public (int proDamageDealt, int proManaUsed, int enemyDamageDealt, int enemyManaUsed, string response) DoTurn(ShrimpBattleActionType action)
+        {
+            var rng = new Random();
+            Array values = Enum.GetValues(typeof(ShrimpBattleActionType));
+            ShrimpBattleActionType turn = (ShrimpBattleActionType)values.GetValue(rng.Next(values.Length));
+            int proDamageDealt = 0;
+            int proManaUsed = 0;
+            string response;
+            // Protagonist attacks enemy
+            if (action == ShrimpBattleActionType.Attack)
+            {
+                proDamageDealt = rng.Next(1, 11);
+                Enemy.Health -= proDamageDealt;
+                response = $"You hit {Enemy.Name} with your mighty stick.";
+            }
+            else if (action == ShrimpBattleActionType.UseMagic)
+            {
+                proDamageDealt = rng.Next(10, 21);
+                proManaUsed = 5;
+                if (Protagonist.Mana - proManaUsed > 0)
+                {
+                    Enemy.Health -= proDamageDealt;
+                    Protagonist.Mana -= proManaUsed;
+                    response = $"You cast magic on {Enemy.Name}.";
+                }
+                else
+                {
+                    response = $"You didn't have enough mana to use your magic, so it didn't do anything.";
+                    proDamageDealt = 0;
+                    proManaUsed = 0;
+                }
+            }
+            else
+            {
+                response = $"You cast healing magic on yourself and gained 35 health.";
+                Protagonist.Health += 35;
+                proManaUsed = 15;
+                Protagonist.Mana -= proManaUsed;
+            }
+            // Enemy attacks protagonist
+            int enemyDamageDealt = 0;
+            int enemyManaUsed = 0;
+            if (turn == ShrimpBattleActionType.Attack) // TODO: reuse code
+            {
+                enemyDamageDealt = rng.Next(1, 11);
+                Protagonist.Health -= enemyDamageDealt;
+            }
+            else
+            {
+                enemyDamageDealt = rng.Next(10, 21);
+                enemyManaUsed = 5;
+                Protagonist.Health -= enemyDamageDealt;
+                Enemy.Mana -= enemyManaUsed;
+            }
+            return (proDamageDealt, proManaUsed, enemyDamageDealt, enemyManaUsed, response);
+        }
+    }
+    public class ShrimpBattlePerson
+    {
+        public int Health { get; set; } = 100;
+        public int Mana { get; set; } = 25;
+        public string Name { get; set; }
+        public bool IsDead() => Health <= 0;
+    }
+    public enum ShrimpBattleActionType
+    {
+        Attack,
+        UseMagic,
+        Heal
     }
 }

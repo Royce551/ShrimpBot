@@ -19,18 +19,15 @@ namespace Shrimpbot
         private readonly CommandService commands;
         private readonly IServiceProvider services;
         private readonly ConfigurationFile config;
-        private readonly LiteDatabase database;
 
-        public CommandHandler(DiscordSocketClient client, CommandService commands, ConfigurationFile config, LiteDatabase database)
+        public CommandHandler(DiscordSocketClient client, CommandService commands, ConfigurationFile config)
         {
             this.commands = commands;
             this.client = client;
             this.config = config;
-            this.database = database;
 
             services = new ServiceCollection()
                 .AddSingleton(config)
-                .AddSingleton(database)
                 .AddSingleton(client)
                 .AddSingleton<InteractiveService>()
                 .BuildServiceProvider();
