@@ -39,6 +39,26 @@ namespace Shrimpbot.Services.Database
                 Database.GetCollection<DatabaseUser>("Users").Insert(user);
             }
         }
+        public static DatabaseServer GetServer(ulong id)
+        {
+            DatabaseServer server;
+
+            server = Database.GetCollection<DatabaseServer>("Servers").FindOne(x => id == x.Id);
+            if (server is null)
+            {
+                LoggingService.Log(LogSeverity.Verbose, "Created a server!");
+                Database.GetCollection<DatabaseServer>("Servers").Insert(new DatabaseServer { Id = id });
+                server = Database.GetCollection<DatabaseServer>("Servers").FindOne(x => id == x.Id);
+            }
+            return server;
+        }
+        public static void WriteServer(DatabaseServer server)
+        {
+            if (!Database.GetCollection<DatabaseServer>("Servers").Update(server))
+            {
+                Database.GetCollection<DatabaseServer>("Servers").Insert(server);
+            }
+        }
         public static List<DatabaseImage> GetImages(ImageType type) => 
             Database.GetCollection<DatabaseImage>("Images").Query()
             .Where(x => x.Type == type)

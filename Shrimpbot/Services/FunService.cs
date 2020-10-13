@@ -47,12 +47,14 @@ namespace Shrimpbot.Services
             var battle = new ShrimpBattle();
             battle.Protagonist = new ShrimpBattlePerson
             {
-                Name = userName
+                Name = userName,
+                Emote = ":smiley:"
             };
             var rng = new Random();
+            int enemyType = rng.Next(1, 6);
             battle.Enemy = new ShrimpBattlePerson
             {
-                Name = rng.Next(1, 6) switch
+                Name = enemyType switch
                 {
                     1 => "Jeremy",
                     2 => "theBeat",
@@ -61,7 +63,16 @@ namespace Shrimpbot.Services
                     5 => "Random Weeaboo",
                     _ => "fucky wucky"
                 },
-                Health = rng.Next(75, 125),
+                Emote = enemyType switch
+                {
+                    1 => ":man:",
+                    2 => ":musical_note:",
+                    3 => ":zombie:",
+                    4 => ":vampire:",
+                    5 => ":bancat:",
+                    _ => "???"
+                },
+                Health = rng.Next(55, 105),
                 Mana = rng.Next(40, 60)
             };    
             return battle;
@@ -75,7 +86,7 @@ namespace Shrimpbot.Services
         {
             var builder = MessagingUtils.GetShrimpbotEmbedBuilder();
             builder.WithAuthor(user);
-            builder.WithDescription("placeholder");
+            builder.WithDescription(@$"{Protagonist.Emote}\_\_\_\_\_\_\_\_\_\_\_\__{Enemy.Emote}");
             builder.AddField(Protagonist.Name,
                 $":blue_heart: **Health**: {Protagonist.Health}\n" +
                 $":magic_wand: **Mana**: {Protagonist.Mana}\n");
@@ -104,7 +115,7 @@ namespace Shrimpbot.Services
             {
                 proDamageDealt = rng.Next(10, 21);
                 proManaUsed = 5;
-                if (Protagonist.Mana - proManaUsed > 0)
+                if (Protagonist.Mana - proManaUsed > -1)
                 {
                     Enemy.Health -= proDamageDealt;
                     Protagonist.Mana -= proManaUsed;
@@ -119,10 +130,19 @@ namespace Shrimpbot.Services
             }
             else
             {
-                response = $"You cast healing magic on yourself and gained 35 health.";
-                Protagonist.Health += 35;
                 proManaUsed = 15;
-                Protagonist.Mana -= proManaUsed;
+                if (Protagonist.Mana - proManaUsed > -1)
+                {
+                    response = $"You cast healing magic on yourself and gained 35 health.";
+                    Protagonist.Health += 35;
+                    Protagonist.Mana -= proManaUsed;
+                }
+                else
+                {
+                    response = $"You didn't have enough mana to use your magic, so it didn't do anything.";
+                    proDamageDealt = 0;
+                    proManaUsed = 0;
+                }
             }
             // Enemy attacks protagonist
             int enemyDamageDealt = 0;
@@ -136,8 +156,16 @@ namespace Shrimpbot.Services
             {
                 enemyDamageDealt = rng.Next(10, 21);
                 enemyManaUsed = 5;
-                Protagonist.Health -= enemyDamageDealt;
-                Enemy.Mana -= enemyManaUsed;
+                if (Enemy.Mana - enemyManaUsed > -1)
+                {
+                    Protagonist.Health -= enemyDamageDealt;
+                    Enemy.Mana -= enemyManaUsed;
+                }
+                else
+                {
+                    enemyDamageDealt = 0;
+                    enemyManaUsed = 0;
+                }
             }
             return (proDamageDealt, proManaUsed, enemyDamageDealt, enemyManaUsed, response);
         }
@@ -147,6 +175,7 @@ namespace Shrimpbot.Services
         public int Health { get; set; } = 100;
         public int Mana { get; set; } = 25;
         public string Name { get; set; }
+        public string Emote { get; set; }
         public bool IsDead() => Health <= 0;
     }
     public enum ShrimpBattleActionType

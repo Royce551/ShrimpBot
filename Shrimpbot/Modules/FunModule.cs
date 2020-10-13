@@ -103,7 +103,7 @@ namespace Shrimpbot.Modules
             {
                 if (battle.Protagonist.IsDead())
                 {
-                    await ReplyAsync("You died :(");
+                    await ReplyAsync(":bone: You died :(");
                     return;
                 }
                 await ReplyAsync(embed: battle.GetFormattedStatus(Context.User).Build());
@@ -113,18 +113,25 @@ namespace Shrimpbot.Modules
                 if (response.Content == "a") turnResults = battle.DoTurn(ShrimpBattleActionType.Attack);
                 else if (response.Content == "m") turnResults = battle.DoTurn(ShrimpBattleActionType.UseMagic);
                 else if (response.Content == "h") turnResults = battle.DoTurn(ShrimpBattleActionType.Heal);
-                else if (response.Content == "r" || response.Content == "quit") return;
+                else if (response.Content == "r" || response.Content == "quit")
+                {
+                    await ReplyAsync(":person_running: You ran away.");
+                    return;
+                }
                 else
                 {
-                    await ReplyAsync("That's not a valid action. If you need to quit, type 'quit'.");
+                    await ReplyAsync(":x: That's not a valid action. If you need to quit, type 'quit'.");
                     continue;
                 }
                 await ReplyAsync(
-                    $"**{turnResults.turnResponse}**\n" +
-                    $"You deal {turnResults.proDamageDealt} damage and use {turnResults.proManaUsed} mana.\n" +
-                    $"{battle.Enemy.Name} deals {turnResults.enemyDamageDealt} damage and uses {turnResults.enemyManaUsed} of their mana.");
+                    $"**{turnResults.turnResponse}**\n\n" +
+                    $"**You** deal **{turnResults.proDamageDealt} damage** and use {turnResults.proManaUsed} mana.\n" +
+                    $"**{battle.Enemy.Name}** deals **{turnResults.enemyDamageDealt} damage** and uses {turnResults.enemyManaUsed} of their mana.");
             }
-            await ReplyAsync($":tada: You win! You got ");
+            await ReplyAsync($":tada: You win! You got 50 {Config.Currency} for your performance.");
+            var user = DatabaseManager.GetUser(Context.User.Id);
+            user.Money += 50;
+            DatabaseManager.WriteUser(user);
         }
         [Command("cute")]
         [Summary("Gets a random cute image")]
@@ -150,26 +157,26 @@ namespace Shrimpbot.Modules
             if (imageSource == ImageSource.Online) // Involves URLs
             {
                 var builder = new StringBuilder();
-                if (string.IsNullOrEmpty(image.Creator)) builder.AppendLine($"Creator: {image.Creator}");
-                if (string.IsNullOrEmpty(image.Uploader)) builder.AppendLine($"Uploaded by {image.Uploader}");
+                if (!string.IsNullOrEmpty(image.Creator)) builder.AppendLine($"Creator: {image.Creator}");
+                if (!string.IsNullOrEmpty(image.Uploader)) builder.AppendLine($"Uploaded by {image.Uploader}");
                 builder.AppendLine($"Source: {image.Source}");
 
                 embedBuilder.ImageUrl = image.Path;
                 embedBuilder.Url = image.Path;
-                embedBuilder.WithFooter(builder.ToString());
+                embedBuilder.WithDescription(builder.ToString());
                 var embed = embedBuilder.Build();
                 await ReplyAsync(embed: embed);
             }
             else // Involves local files
             {
                 var builder = new StringBuilder();
-                if (string.IsNullOrEmpty(image.Creator)) builder.AppendLine($"Creator: {image.Creator}");
-                if (string.IsNullOrEmpty(image.Uploader)) builder.AppendLine($"Uploaded by {image.Uploader}");
+                if (!string.IsNullOrEmpty(image.Creator)) builder.AppendLine($"Creator: {image.Creator}");
+                if (!string.IsNullOrEmpty(image.Uploader)) builder.AppendLine($"Uploaded by {image.Uploader}");
                 builder.AppendLine($"Source: {image.Source}");
 
                 string path = Path.GetFileName(image.Path);
                 embedBuilder.ImageUrl = $"attachment://{path}";
-                embedBuilder.WithFooter(builder.ToString());
+                embedBuilder.WithDescription(builder.ToString());
                 var embed = embedBuilder.Build();
                 await Context.Channel.SendFileAsync(new FileStream(image.Path, FileMode.Open), path, embed: embed);
             }

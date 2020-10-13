@@ -41,5 +41,16 @@ namespace Shrimpbot.Modules
             };
             DatabaseManager.CreateImage(path, imageType, new CuteImage { Creator = creator, Path = path, Source = source, Uploader = uploader });
         }
+        [Command("databaseevalsql")]
+        public async Task DatabaseEvaluateSql(string sql)
+        {
+            var runner = DatabaseManager.GetUser(Context.User.Id);
+            if (runner.BotPermissions < BotPermissionLevel.BotAdministrator)
+            {
+                await ReplyAsync("You don't have permissions to run this command.");
+                return;
+            }
+            DatabaseManager.ExecuteSql(sql);
+        }
     }
 }
