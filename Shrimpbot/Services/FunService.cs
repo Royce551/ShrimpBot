@@ -69,11 +69,10 @@ namespace Shrimpbot.Services
                     2 => ":musical_note:",
                     3 => ":zombie:",
                     4 => ":vampire:",
-                    5 => ":bancat:",
+                    5 => "<:bancat:765320197744623666>",
                     _ => "???"
                 },
-                Health = rng.Next(55, 105),
-                Mana = rng.Next(40, 60)
+                Health = rng.Next(75, 105),
             };    
             return battle;
         }
@@ -93,90 +92,107 @@ namespace Shrimpbot.Services
             builder.AddField(Enemy.Name,
                 $":hearts: **Health**: {Enemy.Health}\n" +
                 $":magic_wand: **Mana**: {Enemy.Mana}\n");
-            builder.WithFooter("a - Attack; m - Use offensive magic; h - Use healing magic; r or quit - Run");
+            builder.WithFooter("a - Attack; m - Use offensive magic; h - Use healing magic; f or quit - Flee");
             return builder;
         }
-        public (int proDamageDealt, int proManaUsed, int enemyDamageDealt, int enemyManaUsed, string response) DoTurn(ShrimpBattleActionType action)
+        public (ShrimpBattleTurnResults proResults, ShrimpBattleTurnResults eneResults) DoTurn(ShrimpBattleActionType action)
         {
             var rng = new Random();
-            Array values = Enum.GetValues(typeof(ShrimpBattleActionType));
-            ShrimpBattleActionType turn = (ShrimpBattleActionType)values.GetValue(rng.Next(values.Length));
-            int proDamageDealt = 0;
-            int proManaUsed = 0;
-            string response;
-            // Protagonist attacks enemy
-            if (action == ShrimpBattleActionType.Attack)
-            {
-                proDamageDealt = rng.Next(1, 11);
-                Enemy.Health -= proDamageDealt;
-                response = $"You hit {Enemy.Name} with your mighty stick.";
-            }
-            else if (action == ShrimpBattleActionType.UseMagic)
-            {
-                proDamageDealt = rng.Next(10, 21);
-                proManaUsed = 5;
-                if (Protagonist.Mana - proManaUsed > -1)
-                {
-                    Enemy.Health -= proDamageDealt;
-                    Protagonist.Mana -= proManaUsed;
-                    response = $"You cast magic on {Enemy.Name}.";
-                }
-                else
-                {
-                    response = $"You didn't have enough mana to use your magic, so it didn't do anything.";
-                    proDamageDealt = 0;
-                    proManaUsed = 0;
-                }
-            }
+            // enemy AI
+            ShrimpBattleActionType turn;
+            var defaultPerson = new ShrimpBattlePerson(); // A default person used to make some decisions
+            if ((Enemy.Health < defaultPerson.Health / 2) && Enemy.Mana > 15) turn = ShrimpBattleActionType.Heal;
             else
             {
-                proManaUsed = 15;
-                if (Protagonist.Mana - proManaUsed > -1)
-                {
-                    response = $"You cast healing magic on yourself and gained 35 health.";
-                    Protagonist.Health += 35;
-                    Protagonist.Mana -= proManaUsed;
-                }
-                else
-                {
-                    response = $"You didn't have enough mana to use your magic, so it didn't do anything.";
-                    proDamageDealt = 0;
-                    proManaUsed = 0;
-                }
+                if (Protagonist.Health > defaultPerson.Health / 2 && Enemy.Mana > 15) turn = ShrimpBattleActionType.UseMagic;
+                else turn = ShrimpBattleActionType.Attack;
             }
-            // Enemy attacks protagonist
-            int enemyDamageDealt = 0;
-            int enemyManaUsed = 0;
-            if (turn == ShrimpBattleActionType.Attack) // TODO: reuse code
+                    
+            // turn
+            var protagonist = Protagonist;
+            var enemy = Enemy;
+            var proResults = action switch
             {
-                enemyDamageDealt = rng.Next(1, 11);
-                Protagonist.Health -= enemyDamageDealt;
-            }
-            else
+                ShrimpBattleActionType.Attack => Protagonist.Attack(rng, ref enemy),
+                ShrimpBattleActionType.UseMagic => Protagonist.UseMagic(rng, ref enemy),
+                ShrimpBattleActionType.Heal => Protagonist.Heal(rng, ref enemy),
+                _ => throw new Exception("fucky wucky")
+            };
+            var eneResults = turn switch
             {
-                enemyDamageDealt = rng.Next(10, 21);
-                enemyManaUsed = 5;
-                if (Enemy.Mana - enemyManaUsed > -1)
-                {
-                    Protagonist.Health -= enemyDamageDealt;
-                    Enemy.Mana -= enemyManaUsed;
-                }
-                else
-                {
-                    enemyDamageDealt = 0;
-                    enemyManaUsed = 0;
-                }
-            }
-            return (proDamageDealt, proManaUsed, enemyDamageDealt, enemyManaUsed, response);
+                ShrimpBattleActionType.Attack => Enemy.Attack(rng, ref protagonist),
+                ShrimpBattleActionType.UseMagic => Enemy.UseMagic(rng, ref protagonist),
+                ShrimpBattleActionType.Heal => Enemy.Heal(rng, ref protagonist),
+                _ => throw new Exception("fucky wucky")
+            };
+            Protagonist = protagonist;
+            Enemy = enemy;
+
+            Protagonist.Mana += 3;
+            Enemy.Mana += 3;
+
+            return (proResults, eneResults);
         }
     }
     public class ShrimpBattlePerson
     {
         public int Health { get; set; } = 100;
-        public int Mana { get; set; } = 25;
+        public int Mana { get; set; } = 0;
         public string Name { get; set; }
         public string Emote { get; set; }
         public bool IsDead() => Health <= 0;
+
+        public ShrimpBattleTurnResults Attack(Random rng, ref ShrimpBattlePerson target)
+        {
+            var results = new ShrimpBattleTurnResults();
+            results.DamageDealt = rng.Next(1, 11);
+            target.Health -= results.DamageDealt;
+            results.Response = $"{Name} hit {target.Name} with their mighty sword.";
+            return results;
+        }
+        public ShrimpBattleTurnResults UseMagic(Random rng, ref ShrimpBattlePerson target)
+        {
+            var results = new ShrimpBattleTurnResults();
+            results.DamageDealt = rng.Next(10, 21);
+            results.ManaUsed = 5;
+            if (Mana - results.ManaUsed > -1)
+            {
+                target.Health -= results.DamageDealt;
+                Mana -= results.ManaUsed;
+                results.Response = $"{Name} cast magic on {target.Name}.";
+            }
+            else
+            {
+                results.Response = $"{Name} didn't have enough mana to use their magic, so it didn't do anything.";
+                results.DamageDealt = 0;
+                results.ManaUsed = 0;
+            }
+            return results;
+        }
+        public ShrimpBattleTurnResults Heal(Random rng, ref ShrimpBattlePerson target)
+        {
+            var results = new ShrimpBattleTurnResults();
+            results.ManaUsed = 15;
+            if (Mana - results.ManaUsed > -1)
+            {
+                results.Response = $"{Name} used healing magic and gained 35 health.";
+                Health += 35;
+                Mana -= results.ManaUsed;
+            }
+            else
+            {
+                results.Response = $"{Name} didn't have enough mana to use their magic, so it didn't do anything.";
+                results.DamageDealt = 0;
+                results.ManaUsed = 0;
+            }
+            return results;
+        }
+    }
+    public class ShrimpBattleTurnResults
+    {
+        public int DamageDealt { get; set; }
+        public int ManaUsed { get; set; }
+        public string Response { get; set; }
     }
     public enum ShrimpBattleActionType
     {

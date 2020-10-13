@@ -109,13 +109,13 @@ namespace Shrimpbot.Modules
                 await ReplyAsync(embed: battle.GetFormattedStatus(Context.User).Build());
                 var response = await NextMessageAsync(timeout: new TimeSpan(0, 0, 0, 0, -1)); // Infinite timeout
 
-                (int proDamageDealt, int proManaUsed, int enemyDamageDealt, int enemyManaUsed, string turnResponse) turnResults;
+                (ShrimpBattleTurnResults proResults, ShrimpBattleTurnResults eneResults) turnResults;
                 if (response.Content == "a") turnResults = battle.DoTurn(ShrimpBattleActionType.Attack);
                 else if (response.Content == "m") turnResults = battle.DoTurn(ShrimpBattleActionType.UseMagic);
                 else if (response.Content == "h") turnResults = battle.DoTurn(ShrimpBattleActionType.Heal);
-                else if (response.Content == "r" || response.Content == "quit")
+                else if (response.Content == "f" || response.Content == "quit")
                 {
-                    await ReplyAsync(":person_running: You ran away.");
+                    await ReplyAsync(":person_running: You fled.");
                     return;
                 }
                 else
@@ -124,9 +124,9 @@ namespace Shrimpbot.Modules
                     continue;
                 }
                 await ReplyAsync(
-                    $"**{turnResults.turnResponse}**\n\n" +
-                    $"**You** deal **{turnResults.proDamageDealt} damage** and use {turnResults.proManaUsed} mana.\n" +
-                    $"**{battle.Enemy.Name}** deals **{turnResults.enemyDamageDealt} damage** and uses {turnResults.enemyManaUsed} of their mana.");
+                    $"{turnResults.proResults.Response}\n**{turnResults.eneResults.Response}**\n\n" +
+                    $"**You** deal **{turnResults.proResults.DamageDealt} damage** and use {turnResults.proResults.ManaUsed} mana.\n" +
+                    $"**{battle.Enemy.Name}** deals **{turnResults.eneResults.DamageDealt} damage** and uses {turnResults.eneResults.ManaUsed} of their mana.");
             }
             await ReplyAsync($":tada: You win! You got 50 {Config.Currency} for your performance.");
             var user = DatabaseManager.GetUser(Context.User.Id);
@@ -151,6 +151,12 @@ namespace Shrimpbot.Modules
                 "online" => ImageSource.Online,
                 _ => ImageSource.Curated
             };
+            var server = DatabaseManager.GetServer(Context.Guild.Id);
+            if (imageSource == ImageSource.Online && !server.AllowsPotentialNSFW)
+            {
+                await ReplyAsync(MessagingUtils.GetServerNoPermissionsString());
+                return;
+            }
             var image = CuteService.GetImage(imageSource, imageType);
 
             var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();

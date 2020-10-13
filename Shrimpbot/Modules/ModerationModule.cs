@@ -13,8 +13,8 @@ using System.Threading.Tasks;
 
 namespace Shrimpbot.Modules
 {
-    [Name("Bot Management")]
-    [Summary("Provides commands for manually managing ShrimpBot - Intended to be used only by bot administrators.")]
+    [Name("Moderation")]
+    [Summary("Commands for managing your server.")]
     public class ModerationModule : InteractiveBase
     {
         public DiscordSocketClient Client { get; set; }
@@ -34,13 +34,12 @@ namespace Shrimpbot.Modules
                 initialPromptEmbedBuilder.WithAuthor(Context.User);
                 initialPromptEmbedBuilder.WithDescription($"{Context.Guild.Name} Settings");
                 initialPromptEmbedBuilder.AddField("The following properties are available to edit:",
-                    "**1** - Allow potential NSFW in non- NSFW channels\n" +
-                    "**2** - Logging Channel\n" +
-                    "**3** - System Channel\n");
+                    $"**1** - Allow potential NSFW in non- NSFW channels - {server.AllowsPotentialNSFW}\n" +
+                    $"**2** - Logging Channel - {server.LoggingChannel}\n" +
+                    $"**3** - System Channel - {server.SystemChannel}\n");
                 initialPromptEmbedBuilder.WithFooter("Say 'quit' to exit.");
                 await ReplyAsync(embed: initialPromptEmbedBuilder.Build());
             }
-
             ShowInitialPrompt();
             while (true)
             {

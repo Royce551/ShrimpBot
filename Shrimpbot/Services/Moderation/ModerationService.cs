@@ -55,7 +55,7 @@ namespace Shrimpbot.Services.Moderation
                     Prompt = "set [The ID of the channel to set]",
                     Set = (string arg) =>
                     {
-                        if (uint.TryParse(arg, out uint result))
+                        if (ulong.TryParse(arg, out ulong result))
                         {
                             Server.LoggingChannel = result;
                             return true;
@@ -72,7 +72,7 @@ namespace Shrimpbot.Services.Moderation
                     Prompt = "set [The ID of the channel to set]",
                     Set = (string arg) =>
                     {
-                        if (uint.TryParse(arg, out uint result))
+                        if (ulong.TryParse(arg, out ulong result))
                         {
                             Server.SystemChannel = result;
                             return true;

@@ -4,6 +4,7 @@ using Discord.WebSocket;
 using Shrimpbot.Services;
 using Shrimpbot.Services.Configuration;
 using Shrimpbot.Services.Database;
+using Shrimpbot.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,7 +27,7 @@ namespace Shrimpbot.Modules
             var runner = DatabaseManager.GetUser(Context.User.Id);
             if (runner.BotPermissions < BotPermissionLevel.BotAdministrator)
             {
-                await ReplyAsync("You don't have permissions to run this command.");
+                await ReplyAsync(MessagingUtils.GetNoPermissionsString());
                 return;
             }
             if (creator == "null") creator = string.Empty;
@@ -47,7 +48,7 @@ namespace Shrimpbot.Modules
             var runner = DatabaseManager.GetUser(Context.User.Id);
             if (runner.BotPermissions < BotPermissionLevel.BotAdministrator)
             {
-                await ReplyAsync("You don't have permissions to run this command.");
+                await ReplyAsync(MessagingUtils.GetNoPermissionsString());
                 return;
             }
             DatabaseManager.ExecuteSql(sql);
