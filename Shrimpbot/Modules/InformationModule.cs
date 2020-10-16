@@ -59,7 +59,7 @@ namespace Shrimpbot.Modules
             embedBuilder.WithAuthor(server.Name, server.IconUrl);
             embedBuilder.AddField("General",
                 $"**Created**: {server.CreatedAt}\n" +
-                $"**Owner**: {server.Owner.Username}\n" +
+                $"**Owner**: {server.Owner}\n" +
                 $"**Members**: {server.MemberCount}\n");
             embedBuilder.AddField("Misc. Information",
                 $"**Text Channels**: {server.TextChannels.Count}\n" +
@@ -67,8 +67,6 @@ namespace Shrimpbot.Modules
                 $"**Emotes**: {server.Emotes.Count}\n" +
                 $"**Content Filter**: {server.ExplicitContentFilter}\n" +
                 $"**Server Boost Level**: {server.PremiumTier}");
-            embedBuilder.AddField("ShrimpBot",
-                $"placeholder");
             await ReplyAsync(embed: embedBuilder.Build());
         }
         [Command("pic")]

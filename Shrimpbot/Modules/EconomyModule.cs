@@ -83,7 +83,7 @@ namespace Shrimpbot.Modules
                 string response = rng switch
                 {
                     1 => "You helped Squid fix bugs in FMP and got {0} {1}.",
-                    2 => "You beated theBeat out of the water and got {0} {1} for your hard work.",
+                    2 => "You beat theBeat out of the water and got {0} {1} for your hard work.",
                     _ => "The dev did a fucky wucky."
                 };
                 var moneygained = Math.Round(50 * runner.DailyBonus);
@@ -94,7 +94,7 @@ namespace Shrimpbot.Modules
             }
             else
             {
-                await ReplyAsync($"You already worked for Squid today. Try again in {Math.Round((DateTime.Now - runner.DailyLastClaimed).TotalHours)} hours. {Math.Round((DateTime.Now.AddDays(1) - runner.DailyLastClaimed).TotalSeconds)}");
+                await ReplyAsync($"You already worked for Squid today. Try again in {Math.Round(((runner.DailyLastClaimed + new TimeSpan(1,0,0,0)) - DateTime.Now).TotalHours)} hours.");
                 return;
             }
             DatabaseManager.WriteUser(runner);

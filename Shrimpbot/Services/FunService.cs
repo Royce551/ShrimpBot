@@ -76,6 +76,22 @@ namespace Shrimpbot.Services
             };    
             return battle;
         }
+        public static ShrimpBattle CreateBattleMultiplayer(string player1Name, string player2Name)
+        {
+            return new ShrimpBattle
+            {
+                Protagonist = new ShrimpBattlePerson
+                {
+                    Name = player1Name,
+                    Emote = ":smiley:"
+                },
+                Enemy = new ShrimpBattlePerson
+                {
+                    Name = player2Name,
+                    Emote = ":upside_down:"
+                }
+            };
+        }
     }
     public class ShrimpBattle
     {
@@ -132,6 +148,20 @@ namespace Shrimpbot.Services
             Enemy.Mana += 3;
 
             return (proResults, eneResults);
+        }
+        public ShrimpBattleTurnResults DoTurnMultiplayer(ShrimpBattleActionType action, ref ShrimpBattlePerson attacker, ref ShrimpBattlePerson target)
+        {
+            var rng = new Random();
+            var results = action switch
+            {
+                ShrimpBattleActionType.Attack => attacker.Attack(rng, ref target),
+                ShrimpBattleActionType.UseMagic => attacker.UseMagic(rng, ref target),
+                ShrimpBattleActionType.Heal => attacker.Heal(rng, ref target),
+                _ => throw new Exception("fucky wucky")
+            };
+            Protagonist.Mana += 3;
+            Enemy.Mana += 3;
+            return results;
         }
     }
     public class ShrimpBattlePerson
