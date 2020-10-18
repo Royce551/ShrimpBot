@@ -39,6 +39,7 @@ namespace Shrimpbot.Services.Database
                 Database.GetCollection<DatabaseUser>("Users").Insert(user);
             }
         }
+        public static List<DatabaseUser> GetAllUsers() => Database.GetCollection<DatabaseUser>("Users").Query().ToList();
         public static DatabaseServer GetServer(ulong id)
         {
             DatabaseServer server;

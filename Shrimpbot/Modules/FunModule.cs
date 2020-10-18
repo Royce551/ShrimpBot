@@ -85,7 +85,7 @@ namespace Shrimpbot.Modules
                 }
                 double payMultiplier = maxNumber / Math.Pow(2, maxguesses); // Awards double for when the max number isn't a power of 2 (highest chances of winning)
                 await ReplyAsync($":tada: You were correct! Great job! You got {Math.Round(maxguesses * 10 * payMultiplier)} {Config.Currency} for your performance.");
-                runner.Money += Math.Round(maxguesses * 10 * payMultiplier);
+                runner.Money += (decimal)Math.Round(maxguesses * 10 * payMultiplier);
                 DatabaseManager.WriteUser(runner);
             }
             catch (Exception e)

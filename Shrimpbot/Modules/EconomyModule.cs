@@ -4,8 +4,10 @@ using Discord.WebSocket;
 using LiteDB;
 using Shrimpbot.Services.Configuration;
 using Shrimpbot.Services.Database;
+using Shrimpbot.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,11 +24,11 @@ namespace Shrimpbot.Modules
         [Summary("Gets your current balance")]
         public async Task Balance()
         {
-            await ReplyAsync($"You have {DatabaseManager.GetUser(Context.User.Id).Money} {Config.Currency}.");
+            await ReplyAsync($"You have {DatabaseManager.GetUser(Context.User.Id).Money} {string.Format("{0:n}", Config.Currency)}.");
         }
         [Command("pay")]
         [Summary("Gives someone some money")]
-        public async Task Pay(IUser user, double amount)
+        public async Task Pay(IUser user, decimal amount)
         {
             if (amount <= 0)
             {
@@ -37,13 +39,13 @@ namespace Shrimpbot.Modules
             var reciever = DatabaseManager.GetUser(user.Id);
             runner.Money -= amount;
             reciever.Money += amount;
-            await ReplyAsync($"Gave {Config.CurrencySymbol}{amount} to {user.Username}, leaving you with {Config.CurrencySymbol}{runner.Money}.");
+            await ReplyAsync($"Gave {Config.CurrencySymbol}{amount} to {user.Username}, leaving you with {Config.CurrencySymbol}{string.Format("{0:n}", runner.Money)}");
             DatabaseManager.WriteUser(runner);
             DatabaseManager.WriteUser(reciever);
         }
         [Command("gamble")]
         [Summary("Throws your money away in the hopes of doubling your wealth")]
-        public async Task Gamble(int bet)
+        public async Task Gamble(decimal bet)
         {
             var runner = DatabaseManager.GetUser(Context.User.Id);
             var rng = new Random();
@@ -63,12 +65,12 @@ namespace Shrimpbot.Modules
             {
                 bet *= 3;
                 runner.Money += bet;
-                await ReplyAsync($"You - {runnergamble} | {Config.Name} - {shrimpgamble}, You won! Your bet got doubled, leaving you with {runner.Money} {Config.Currency}. Naisuu!!");
+                await ReplyAsync($"You - {runnergamble} | {Config.Name} - {shrimpgamble}, You won! Your bet got doubled, leaving you with {string.Format("{0:n}", runner.Money)} {Config.Currency}. Naisuu!!");
             }
             else
             {
                 runner.Money -= bet;
-                await ReplyAsync($"You - {runnergamble} | {Config.Name} - {shrimpgamble}, Damn, you lost. You now have {runner.Money} {Config.Currency}.");
+                await ReplyAsync($"You - {runnergamble} | {Config.Name} - {shrimpgamble}, Damn, you lost. You now have {string.Format("{0:n}", runner.Money)} {Config.Currency}.");
             }
             DatabaseManager.WriteUser(runner);
         }
@@ -86,7 +88,7 @@ namespace Shrimpbot.Modules
                     2 => "You beat theBeat out of the water and got {0} {1} for your hard work.",
                     _ => "The dev did a fucky wucky."
                 };
-                var moneygained = Math.Round(50 * runner.DailyBonus);
+                decimal moneygained = (decimal)Math.Round(50 * runner.DailyBonus);
                 runner.Money += moneygained;
                 runner.DailyBonus += 0.01;
                 runner.DailyLastClaimed = DateTime.Now;
@@ -98,6 +100,24 @@ namespace Shrimpbot.Modules
                 return;
             }
             DatabaseManager.WriteUser(runner);
+        }
+        [Command("leaderboard")]
+        [Summary("See how your wealth stacks up to others.")]
+        public async Task Leaderboard()
+        {
+            var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
+            var users = DatabaseManager.GetAllUsers().GetRange(0, 10).OrderByDescending(o => o.Money);
+            var stringBuilder = new StringBuilder();
+            int i = 1;
+            foreach (var user in users)
+            {
+                stringBuilder.AppendLine($"{i} - {Client.GetUser(user.Id).Username}: {Config.CurrencySymbol}{string.Format("{0:n}", user.Money)}");
+                i++;
+            }
+
+            embedBuilder.AddField($"Top {Config.Name} users",
+                stringBuilder.ToString());
+            await ReplyAsync(embed: embedBuilder.Build());
         }
     }
 }
