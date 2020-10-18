@@ -1,12 +1,9 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using LiteDB;
 using Shrimpbot.Services;
 using Shrimpbot.Services.Configuration;
-using Shrimpbot.Services.Database;
 using System;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace Shrimpbot
