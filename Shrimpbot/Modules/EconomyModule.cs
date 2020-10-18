@@ -1,12 +1,10 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using LiteDB;
 using Shrimpbot.Services.Configuration;
 using Shrimpbot.Services.Database;
 using Shrimpbot.Utilities;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +15,8 @@ namespace Shrimpbot.Modules
     [Summary("bling bling")]
     public class EconomyModule : ModuleBase<SocketCommandContext>
     {
+        static Random rng = new Random();
+
         public DiscordSocketClient Client { get; set; }
         public CommandService CommandService { get; set; }
         public ConfigurationFile Config { get; set; }
@@ -37,6 +37,12 @@ namespace Shrimpbot.Modules
             }
             var runner = DatabaseManager.GetUser(Context.User.Id);
             var reciever = DatabaseManager.GetUser(user.Id);
+
+            if (amount > runner.Money)
+            {
+                await ReplyAsync("You can't pay someone more money than you have.");
+                return;
+            }
             runner.Money -= amount;
             reciever.Money += amount;
             await ReplyAsync($"Gave {Config.CurrencySymbol}{amount} to {user.Username}, leaving you with {Config.CurrencySymbol}{string.Format("{0:n}", runner.Money)}");
@@ -48,7 +54,6 @@ namespace Shrimpbot.Modules
         public async Task Gamble(decimal bet)
         {
             var runner = DatabaseManager.GetUser(Context.User.Id);
-            var rng = new Random();
             var runnergamble = rng.Next(1, 20);
             var shrimpgamble = rng.Next(1, 20);
             if (bet > runner.Money)
@@ -63,7 +68,7 @@ namespace Shrimpbot.Modules
             }
             if (runnergamble > shrimpgamble)
             {
-                bet *= 3;
+                bet *= 2;
                 runner.Money += bet;
                 await ReplyAsync($"You - {runnergamble} | {Config.Name} - {shrimpgamble}, You won! Your bet got doubled, leaving you with {string.Format("{0:n}", runner.Money)} {Config.Currency}. Naisuu!!");
             }
@@ -81,13 +86,14 @@ namespace Shrimpbot.Modules
             var runner = DatabaseManager.GetUser(Context.User.Id);
             if (DateTime.Now - runner.DailyLastClaimed >= new TimeSpan(1,0,0,0))
             {
-                var rng = new Random().Next(1,3);
-                string response = rng switch
+                var responses = new string[]
                 {
-                    1 => "You helped Squid fix bugs in FMP and got {0} {1}.",
-                    2 => "You beat theBeat out of the water and got {0} {1} for your hard work.",
-                    _ => "The dev did a fucky wucky."
+                    "You helped Squid fix bugs in FMP and got {0} {1}.",
+                    "You beat theBeat out of the water and got {0} {1} for your hard work.",
+                    "The dev did a fucky wucky."
                 };
+
+                string response = responses[rng.Next(0, responses.Length - 1)];
                 decimal moneygained = (decimal)Math.Round(50 * runner.DailyBonus);
                 runner.Money += moneygained;
                 runner.DailyBonus += 0.01;

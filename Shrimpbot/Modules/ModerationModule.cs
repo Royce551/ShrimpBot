@@ -7,8 +7,6 @@ using Shrimpbot.Services.Database;
 using Shrimpbot.Services.Moderation;
 using Shrimpbot.Utilities;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Shrimpbot.Modules
