@@ -40,14 +40,22 @@ namespace Shrimpbot.Modules
 
             if (amount > runner.Money)
             {
-                await ReplyAsync("You can't pay someone more money than you have.");
+                await ReplyAsync("You can't give someone more money than you have.");
                 return;
             }
-            runner.Money -= amount;
-            reciever.Money += amount;
-            await ReplyAsync($"Gave {Config.CurrencySymbol}{amount} to {user.Username}, leaving you with {Config.CurrencySymbol}{string.Format("{0:n}", runner.Money)}");
-            DatabaseManager.WriteUser(runner);
-            DatabaseManager.WriteUser(reciever);
+
+            if (Context.User.Id == user.Id)
+            {
+                await ReplyAsync($"You gave {Config.CurrencySymbol}{amount} to yourself, you still have {Config.CurrencySymbol}{string.Format("{ 0:n}", runner.Money)} - what a surprise.");
+            }
+            else
+            {
+                runner.Money -= amount;
+                reciever.Money += amount;
+                await ReplyAsync($"Gave {Config.CurrencySymbol}{amount} to {user.Username}, leaving you with {Config.CurrencySymbol}{string.Format("{0:n}", runner.Money)}");
+                DatabaseManager.WriteUser(runner);
+                DatabaseManager.WriteUser(reciever);
+            }
         }
         [Command("gamble")]
         [Summary("Throws your money away in the hopes of doubling your wealth")]
