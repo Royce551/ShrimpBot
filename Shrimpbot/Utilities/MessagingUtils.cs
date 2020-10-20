@@ -18,13 +18,13 @@ namespace Shrimpbot.Utilities
         }
         public static string GetNoPermissionsString(string permission = null)
         {
-            if (permission is null) return "You don't have permissions to run this command.";
-            else return $"You do not have permission to {permission}.";
+            if (permission is null) return ":x: You don't have permission to run this command.";
+            else return $":x: You do not have permission to {permission}.";
         }
         public static string GetServerNoPermissionsString(string permission = null)
         {
-            if (permission is null) return "The server you're in doesn't allow you to run this command.";
-            else return $"The server you're in doesn't allow you to {permission}.";
+            if (permission is null) return ":x: The server you're in doesn't allow you to run this command.";
+            else return $":x: The server you're in doesn't allow you to {permission}.";
         }
     }
 }

@@ -46,7 +46,7 @@ namespace Shrimpbot.Modules
 
             if (Context.User.Id == user.Id)
             {
-                await ReplyAsync($"You gave {Config.CurrencySymbol}{amount} to yourself, you still have {Config.CurrencySymbol}{string.Format("{ 0:n}", runner.Money)} - what a surprise.");
+                await ReplyAsync($"You gave {Config.CurrencySymbol}{amount} to yourself, you still have {Config.CurrencySymbol}{string.Format("{0:n}", runner.Money)} - what a surprise.");
             }
             else
             {

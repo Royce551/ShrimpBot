@@ -40,7 +40,7 @@ namespace Shrimpbot.Services
         public static CuteImage GetImageFromOnline(ImageType type)
         {
             var image = new CuteImage();
-            int index = Rng.Next(1, 100);
+            int index = Rng.Next(1, 101);
             string tags = type switch
             {
                 ImageType.Catgirls => "rating:safe 1girl cat_ears cat_tail",
@@ -90,6 +90,16 @@ namespace Shrimpbot.Services
             image.Path = Path.Combine(Directory.GetCurrentDirectory(), "LegacyImages", $"cute{number}.png");
             image.Creator = $"Legacy image #{number}";
             image.Uploader = $"Squid Grill";
+            return image;
+        }
+        public static CuteImage SearchImageBoard(string tags)
+        {
+            var image = new CuteImage();
+            int index = Rng.Next(1, 101);
+            var json = JArray.Parse(client.GetStringAsync($"https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&tags={tags}").Result);
+            image.Uploader = json.SelectToken($"$[{index}].owner").ToString();
+            image.Source = json.SelectToken($"$[{index}].source").ToString();
+            image.Path = json.SelectToken($"$[{index}].file_url").ToString();
             return image;
         }
     }

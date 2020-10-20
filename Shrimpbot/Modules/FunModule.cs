@@ -292,5 +292,28 @@ namespace Shrimpbot.Modules
                 await Context.Channel.SendFileAsync(new FileStream(image.Path, FileMode.Open), path, embed: embed);
             }
         }
+        [Command("cutesearch")]
+        [Summary("Searches image boards for an image.")]
+        public async Task SearchOnline(string tags)
+        {
+            var server = DatabaseManager.GetServer(Context.Guild.Id);
+            if (!server.AllowsPotentialNSFW)
+            {
+                await ReplyAsync(MessagingUtils.GetServerNoPermissionsString());
+                return;
+            }
+            var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
+            var image = CuteService.SearchImageBoard(tags);
+            var builder = new StringBuilder();
+            if (!string.IsNullOrEmpty(image.Creator)) builder.AppendLine($"Creator: {image.Creator}");
+            if (!string.IsNullOrEmpty(image.Uploader)) builder.AppendLine($"Uploaded by {image.Uploader}");
+            builder.AppendLine($"Source: {image.Source}");
+
+            embedBuilder.ImageUrl = image.Path;
+            embedBuilder.Url = image.Path;
+            embedBuilder.WithDescription(builder.ToString());
+            var embed = embedBuilder.Build();
+            await ReplyAsync(embed: embed);
+        }
     }
 }
