@@ -160,12 +160,12 @@ namespace Shrimpbot.Modules
             {
                 if (battle.Protagonist.IsDead())
                 {
-                    await ReplyAsync($"{battle.Protagonist.Name} wins!");
+                    await ReplyAsync($"{battle.Enemy.Name} wins!");
                     return;
                 }
                 if (battle.Enemy.IsDead())
                 {
-                    await ReplyAsync($"{battle.Enemy.Name} wins!");
+                    await ReplyAsync($"{battle.Protagonist.Name} wins!");
                     return;
                 } // TODO: reuse code and make this not be a pain to maintain in the future
                 // Player 1's turn

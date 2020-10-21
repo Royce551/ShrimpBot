@@ -65,7 +65,7 @@ namespace Shrimpbot.Services
             if (type == ImageType.All || type == ImageType.Anime) imagePaths.AddRange(DatabaseManager.GetImages(ImageType.Anime));
             if (type == ImageType.All || type == ImageType.Anime || type == ImageType.Catgirls) imagePaths.AddRange(DatabaseManager.GetImages(ImageType.Catgirls));
 
-            int number = Rng.Next(0, imagePaths.Count);
+            int number = Rng.Next(1, imagePaths.Count + 1);
             var image = imagePaths[number].Image;
 
             return image;

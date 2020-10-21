@@ -91,11 +91,14 @@ namespace Shrimpbot.Services
     {
         public ShrimpBattlePerson Protagonist { get; set; }
         public ShrimpBattlePerson Enemy { get; set; }
+        public int Turns { get; private set; } = 1;
+        public bool InBlitzMode { get; private set; } = false;
         public EmbedBuilder GetFormattedStatus(IUser user)
         {
             var builder = MessagingUtils.GetShrimpbotEmbedBuilder();
             builder.WithAuthor(user);
-            builder.WithDescription(@$"{Protagonist.Emote}\_\_\_\_\_\_\_\_\_\_\_\__{Enemy.Emote}");
+            if (!InBlitzMode) builder.WithDescription($"{Protagonist.Emote}\\_\\_\\_\\_\\_\\_\\_\\_\\_\\_\\_\\__{Enemy.Emote}\n**Turn {Turns}**");
+            else builder.WithDescription($"{Protagonist.Emote}🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥{Enemy.Emote}\n**Turn {Turns}**\n**In blitz mode! Healing magic is banned!**");
             builder.AddField(Protagonist.Name,
                 $":blue_heart: **Health**: {Protagonist.Health}\n" +
                 $":magic_wand: **Mana**: {Protagonist.Mana}\n");
@@ -107,11 +110,12 @@ namespace Shrimpbot.Services
         }
         public (ShrimpBattleTurnResults proResults, ShrimpBattleTurnResults eneResults) DoTurn(ShrimpBattleActionType action)
         {
+            if (Turns >= 15) InBlitzMode = true;
             var rng = new Random();
             // enemy AI
             ShrimpBattleActionType turn;
             var defaultPerson = new ShrimpBattlePerson(); // A default person used to make some decisions
-            if ((Enemy.Health < defaultPerson.Health / 2) && Enemy.Mana > 15) turn = ShrimpBattleActionType.Heal;
+            if ((Enemy.Health < defaultPerson.Health / 2) && Enemy.Mana > 30 && !InBlitzMode) turn = ShrimpBattleActionType.Heal;
             else
             {
                 if (Protagonist.Health > defaultPerson.Health / 2 && Enemy.Mana > 15) turn = ShrimpBattleActionType.UseMagic;
@@ -125,14 +129,14 @@ namespace Shrimpbot.Services
             {
                 ShrimpBattleActionType.Attack => Protagonist.Attack(rng, ref enemy),
                 ShrimpBattleActionType.UseMagic => Protagonist.UseMagic(rng, ref enemy),
-                ShrimpBattleActionType.Heal => Protagonist.Heal(rng, ref enemy),
+                ShrimpBattleActionType.Heal => Protagonist.Heal(this),
                 _ => throw new Exception("fucky wucky")
             };
             var eneResults = turn switch
             {
                 ShrimpBattleActionType.Attack => Enemy.Attack(rng, ref protagonist),
                 ShrimpBattleActionType.UseMagic => Enemy.UseMagic(rng, ref protagonist),
-                ShrimpBattleActionType.Heal => Enemy.Heal(rng, ref protagonist),
+                ShrimpBattleActionType.Heal => Enemy.Heal(this),
                 _ => throw new Exception("fucky wucky")
             };
             Protagonist = protagonist;
@@ -141,20 +145,24 @@ namespace Shrimpbot.Services
             Protagonist.Mana += 3;
             Enemy.Mana += 3;
 
+            Turns++;
             return (proResults, eneResults);
         }
         public ShrimpBattleTurnResults DoTurnMultiplayer(ShrimpBattleActionType action, ref ShrimpBattlePerson attacker, ref ShrimpBattlePerson target)
         {
+            if (Turns >= 15) InBlitzMode = true;
             var rng = new Random();
             var results = action switch
             {
                 ShrimpBattleActionType.Attack => attacker.Attack(rng, ref target),
                 ShrimpBattleActionType.UseMagic => attacker.UseMagic(rng, ref target),
-                ShrimpBattleActionType.Heal => attacker.Heal(rng, ref target),
+                ShrimpBattleActionType.Heal => attacker.Heal(this),
                 _ => throw new Exception("fucky wucky")
             };
             Protagonist.Mana += 3;
             Enemy.Mana += 3;
+
+            Turns++;
             return results;
         }
     }
@@ -193,14 +201,19 @@ namespace Shrimpbot.Services
             }
             return results;
         }
-        public ShrimpBattleTurnResults Heal(Random rng, ref ShrimpBattlePerson target)
+        public ShrimpBattleTurnResults Heal(ShrimpBattle battle)
         {
             var results = new ShrimpBattleTurnResults();
-            results.ManaUsed = 15;
+            if (battle.InBlitzMode)
+            {
+                results.Response = "The battle is in blitz mode! No healing magic!";
+                return results;
+            }
+            results.ManaUsed = 30;
             if (Mana - results.ManaUsed > -1)
             {
-                results.Response = $"{Name} used healing magic and gained 35 health.";
-                Health += 35;
+                results.Response = $"{Name} used healing magic and gained 30 health.";
+                Health += 30;
                 Mana -= results.ManaUsed;
             }
             else
