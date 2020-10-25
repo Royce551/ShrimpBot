@@ -3,6 +3,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Shrimpbot.Services.Configuration;
 using Shrimpbot.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace Shrimpbot.Modules
         public DiscordSocketClient Client { get; set; }
         public CommandService CommandService { get; set; }
         public ConfigurationFile Config { get; set; }
+        public BotRuntimeInformation RuntimeInformation { get; set; }
 
         [Command("ping")]
         [Summary("Pings Shrimpbot")]
@@ -60,6 +62,24 @@ namespace Shrimpbot.Modules
             embedBuilder.AddField("Official Shrimpbot Discord Server", "https://discord.gg/fuJ6J4s");
             await Client.CurrentUser.ModifyAsync(x => x.Username = $"{Config.Name} {Config.Version}");
             await ReplyAsync(null, false, embedBuilder.Build());
+        }
+        [Command("uptime")]
+        [Summary("Shows how long Shrimpbot has been up")]
+        public async Task Uptime()
+        {
+            var uptime = DateTime.Now - RuntimeInformation.StartupTime;
+            await ReplyAsync($":clock10: {Config.Name} has been up for {uptime.Hours} hours, {uptime.Minutes} minutes, and {uptime.Seconds} seconds!");
+        }
+        [Command("stats")]
+        [Summary("Shows some interesting information about Shrimpbot")]
+        public async Task Stats()
+        {
+            var uptime = DateTime.Now - RuntimeInformation.StartupTime;
+            var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
+            embedBuilder.AddField($"{Config.Name} stats",
+                $"Uptime: {uptime}\n" +
+                $"Commands handled: {RuntimeInformation.CommandsHandled}");
+            await ReplyAsync(embed:embedBuilder.Build());
         }
     }
 }

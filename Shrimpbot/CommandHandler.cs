@@ -19,16 +19,19 @@ namespace Shrimpbot
         private readonly CommandService commands;
         private readonly IServiceProvider services;
         private readonly ConfigurationFile config;
+        private readonly BotRuntimeInformation runtimeInformation;
 
-        public CommandHandler(DiscordSocketClient client, CommandService commands, ConfigurationFile config)
+        public CommandHandler(DiscordSocketClient client, CommandService commands, ConfigurationFile config, BotRuntimeInformation runtimeInformation)
         {
             this.commands = commands;
             this.client = client;
             this.config = config;
+            this.runtimeInformation = runtimeInformation;
 
             services = new ServiceCollection()
                 .AddSingleton(config)
                 .AddSingleton(client)
+                .AddSingleton(runtimeInformation)
                 .AddSingleton<InteractiveService>()
                 .BuildServiceProvider();
         }
@@ -54,7 +57,8 @@ namespace Shrimpbot
                 context: context,
                 argPos: argPos,
                 services: services);
-            LoggingService.Log(LogSeverity.Verbose, "Executed a command!");
+            LoggingService.Log(LogSeverity.Verbose, $"Executed a command! {context.Guild.Name} at {context.Channel.Name}.");
+            runtimeInformation.CommandsHandled++;
             if (!result.IsSuccess)
                 await context.Channel.SendMessageAsync($"Oopsies! {result.ErrorReason}");
         }

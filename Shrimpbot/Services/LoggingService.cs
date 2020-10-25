@@ -16,6 +16,7 @@ namespace Shrimpbot.Services
                 _ => ConsoleColor.White
             };
             Console.WriteLine($"[{severity} {DateTime.Now:T}] {message}");
+            Console.ResetColor();
         }
     }
 }

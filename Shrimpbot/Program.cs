@@ -14,8 +14,9 @@ namespace Shrimpbot
         {
             var client = new DiscordSocketClient();
             var config = ConfigurationManager.Read();
+            var runtimeInformation = new BotRuntimeInformation { StartupTime = DateTime.Now };
             client.Log += Client_Log;
-            var commandHandler = new CommandHandler(client, new CommandService(), config);
+            var commandHandler = new CommandHandler(client, new CommandService(), config, runtimeInformation);
             await commandHandler.InstallCommandsAsync();
 
             await client.LoginAsync(TokenType.Bot, config.Token);
@@ -30,5 +31,10 @@ namespace Shrimpbot
             Console.ResetColor();
             return Task.CompletedTask;
         }
+    }
+    public class BotRuntimeInformation
+    {
+        public DateTime StartupTime { get; set; }
+        public int CommandsHandled { get; set; }
     }
 }
