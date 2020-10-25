@@ -70,9 +70,9 @@ namespace Shrimpbot.Services
             };    
             return battle;
         }
-        public static ShrimpBattle CreateBattleMultiplayer(string player1Name, string player2Name)
+        public static MultiplayerShrimpBattle CreateBattleMultiplayer(string player1Name, string player2Name)
         {
-            return new ShrimpBattle
+            return new MultiplayerShrimpBattle
             {
                 Protagonist = new ShrimpBattlePerson
                 {
@@ -91,7 +91,7 @@ namespace Shrimpbot.Services
     {
         public ShrimpBattlePerson Protagonist { get; set; }
         public ShrimpBattlePerson Enemy { get; set; }
-        public int Turns { get; private set; } = 1;
+        public int Turns { get; set; } = 1;
         public bool InBlitzMode { get; private set; } = false;
         public EmbedBuilder GetFormattedStatus(IUser user)
         {
@@ -136,17 +136,6 @@ namespace Shrimpbot.Services
             Turns++;
             return (proResults, eneResults);
         }
-        public ShrimpBattleTurnResults DoTurnMultiplayer(ShrimpBattleActionType action, ref ShrimpBattlePerson attacker, ref ShrimpBattlePerson target)
-        {
-            if (Turns >= 15) InBlitzMode = true;
-            var rng = new Random();
-            var results = PerformActionForType(action, rng, attacker, target, this);
-            Protagonist.Mana += 3;
-            Enemy.Mana += 3;
-
-            Turns++;
-            return results;
-        }
         public static ShrimpBattleTurnResults PerformActionForType(ShrimpBattleActionType type, Random rng, ShrimpBattlePerson attacker, ShrimpBattlePerson target, ShrimpBattle battle) => type switch
         {
             ShrimpBattleActionType.Attack => attacker.Attack(rng, ref target),
@@ -155,7 +144,31 @@ namespace Shrimpbot.Services
             _ => throw new Exception("fucky wucky")
         };
     }
+    public class MultiplayerShrimpBattle : ShrimpBattle
+    {
+        public ShrimpBattleTurn Turn { get; private set; } = ShrimpBattleTurn.Player1;
+        public new ShrimpBattleTurnResults DoTurn(ShrimpBattleActionType action)
+        {
+            var rng = new Random();
+            ShrimpBattleTurnResults results;
+            if (Turn == ShrimpBattleTurn.Player1)
+            {
+                results = PerformActionForType(action, rng, Protagonist, Enemy, this);
+                Turn = ShrimpBattleTurn.Player2;
+            }
+            else
+            {
+                results = PerformActionForType(action, rng, Enemy, Protagonist, this);
+                Turn = ShrimpBattleTurn.Player1;
 
+                // Complete turn completed
+                Protagonist.Mana += 3;
+                Enemy.Mana += 3;
+                Turns++;
+            }
+            return results;
+        }
+    }
     public class ShrimpBattlePerson
     {
         public int Health { get; set; } = 100;
@@ -226,5 +239,10 @@ namespace Shrimpbot.Services
         Attack,
         UseMagic,
         Heal
+    }
+    public enum ShrimpBattleTurn
+    {
+        Player1,
+        Player2
     }
 }

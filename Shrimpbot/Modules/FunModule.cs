@@ -169,7 +169,7 @@ namespace Shrimpbot.Modules
                     return;
                 } // TODO: reuse code and make this not be a pain to maintain in the future
                 // Player 1's turn
-                while (true)
+                while (battle.Turn == ShrimpBattleTurn.Player1)
                 {
                     SocketMessage player1Response;
                     await ReplyAsync($"{battle.Protagonist.Name}, it's your turn!", embed: battle.GetFormattedStatus(player1).Build());
@@ -179,11 +179,9 @@ namespace Shrimpbot.Modules
                         if (player1Response.Author == player1) break;
                     }
                     ShrimpBattleTurnResults player1TurnResults;
-                    var player1Attacker = battle.Protagonist;
-                    var player1Target = battle.Enemy;
-                    if (player1Response.Content == "a") player1TurnResults = battle.DoTurnMultiplayer(ShrimpBattleActionType.Attack, ref player1Attacker, ref player1Target);
-                    else if (player1Response.Content == "m") player1TurnResults = battle.DoTurnMultiplayer(ShrimpBattleActionType.UseMagic, ref player1Attacker, ref player1Target);
-                    else if (player1Response.Content == "h") player1TurnResults = battle.DoTurnMultiplayer(ShrimpBattleActionType.Heal, ref player1Attacker, ref player1Target);
+                    if (player1Response.Content == "a") player1TurnResults = battle.DoTurn(ShrimpBattleActionType.Attack);
+                    else if (player1Response.Content == "m") player1TurnResults = battle.DoTurn(ShrimpBattleActionType.UseMagic);
+                    else if (player1Response.Content == "h") player1TurnResults = battle.DoTurn(ShrimpBattleActionType.Heal);
                     else if (player1Response.Content == "f" || player1Response.Content == "quit")
                     {
                         await ReplyAsync(":person_running: You fled.");
@@ -194,16 +192,13 @@ namespace Shrimpbot.Modules
                         await ReplyAsync(":x: That's not a valid action. If you need to quit, type 'quit'.");
                         continue;
                     }
-                    battle.Protagonist = player1Attacker;
-                    battle.Enemy = player1Target;
                     await ReplyAsync(
                         $"{player1TurnResults.Response}\n" +
                         $"**{battle.Protagonist.Name}** dealt **{player1TurnResults.DamageDealt} damage** and used {player1TurnResults.ManaUsed} mana.");
                     player1Response = null;
-                    break;
                 } 
                 // Player 2's turn
-                while (true)
+                while (battle.Turn == ShrimpBattleTurn.Player2)
                 {
                     SocketMessage player2Response;
                     await ReplyAsync($"{battle.Enemy.Name}, it's your turn!", embed: battle.GetFormattedStatus(player1).Build());
@@ -213,11 +208,9 @@ namespace Shrimpbot.Modules
                         if (player2Response.Author == player2) break;
                     }
                     ShrimpBattleTurnResults player2TurnResults;
-                    var player2Attacker = battle.Enemy;
-                    var player2Target = battle.Protagonist;
-                    if (player2Response.Content == "a") player2TurnResults = battle.DoTurnMultiplayer(ShrimpBattleActionType.Attack, ref player2Attacker, ref player2Target);
-                    else if (player2Response.Content == "m") player2TurnResults = battle.DoTurnMultiplayer(ShrimpBattleActionType.UseMagic, ref player2Attacker, ref player2Target);
-                    else if (player2Response.Content == "h") player2TurnResults = battle.DoTurnMultiplayer(ShrimpBattleActionType.Heal, ref player2Attacker, ref player2Target);
+                    if (player2Response.Content == "a") player2TurnResults = battle.DoTurn(ShrimpBattleActionType.Attack);
+                    else if (player2Response.Content == "m") player2TurnResults = battle.DoTurn(ShrimpBattleActionType.UseMagic);
+                    else if (player2Response.Content == "h") player2TurnResults = battle.DoTurn(ShrimpBattleActionType.Heal);
                     else if (player2Response.Content == "f" || player2Response.Content == "quit")
                     {
                         await ReplyAsync(":person_running: You fled.");
@@ -228,8 +221,6 @@ namespace Shrimpbot.Modules
                         await ReplyAsync(":x: That's not a valid action. If you need to quit, type 'quit'.");
                         continue;
                     }
-                    battle.Enemy = player2Attacker;
-                    battle.Protagonist = player2Target;
                     await ReplyAsync(
                         $"{player2TurnResults.Response}\n" +
                         $"**{battle.Enemy.Name}** dealt **{player2TurnResults.DamageDealt} damage** and used {player2TurnResults.ManaUsed} mana.");
