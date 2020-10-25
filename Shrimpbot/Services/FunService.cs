@@ -115,10 +115,10 @@ namespace Shrimpbot.Services
             // enemy AI
             ShrimpBattleActionType turn;
             var defaultPerson = new ShrimpBattlePerson(); // A default person used to make some decisions
-            if ((Enemy.Health < defaultPerson.Health / 2) && Enemy.Mana > 30 && !InBlitzMode) turn = ShrimpBattleActionType.Heal;
+            if ((Enemy.Health < defaultPerson.Health / 2) && Enemy.Mana > ShrimpBattlePerson.ManaNeededForHealingMagic && !InBlitzMode) turn = ShrimpBattleActionType.Heal;
             else
             {
-                if (Protagonist.Health > defaultPerson.Health / 2 && Enemy.Mana > 15) turn = ShrimpBattleActionType.UseMagic;
+                if (Protagonist.Health < defaultPerson.Health / 2 && Enemy.Mana > ShrimpBattlePerson.ManaNeededForOffensiveMagic) turn = ShrimpBattleActionType.UseMagic;
                 else turn = ShrimpBattleActionType.Attack;
             }
                     
@@ -177,6 +177,8 @@ namespace Shrimpbot.Services
         public string Emote { get; set; }
         public bool IsDead() => Health <= 0;
 
+        public const int ManaNeededForOffensiveMagic = 5;
+        public const int ManaNeededForHealingMagic = 30;
         public ShrimpBattleTurnResults Attack(Random rng, ref ShrimpBattlePerson target)
         {
             var results = new ShrimpBattleTurnResults();
@@ -189,7 +191,7 @@ namespace Shrimpbot.Services
         {
             var results = new ShrimpBattleTurnResults();
             results.DamageDealt = rng.Next(10, 21);
-            results.ManaUsed = 5;
+            results.ManaUsed = ManaNeededForOffensiveMagic;
             if (Mana - results.ManaUsed > -1)
             {
                 target.Health -= results.DamageDealt;
@@ -212,7 +214,7 @@ namespace Shrimpbot.Services
                 results.Response = "The battle is in blitz mode! No healing magic!";
                 return results;
             }
-            results.ManaUsed = 30;
+            results.ManaUsed = ManaNeededForHealingMagic;
             if (Mana - results.ManaUsed > -1)
             {
                 results.Response = $"{Name} used healing magic and gained 30 health.";
