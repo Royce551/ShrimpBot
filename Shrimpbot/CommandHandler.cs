@@ -57,7 +57,7 @@ namespace Shrimpbot
                 context: context,
                 argPos: argPos,
                 services: services);
-            LoggingService.Log(LogSeverity.Verbose, $"Executed a command! {context.Guild.Name} at {context.Channel.Name}.");
+            LoggingService.Log(LogSeverity.Verbose, $"Executed a command! {context.Guild?.Name ?? "in DM's"} at {context.Channel?.Name}.");
             runtimeInformation.CommandsHandled++;
             if (!result.IsSuccess)
                 await context.Channel.SendMessageAsync($"Oopsies! {result.ErrorReason}");
