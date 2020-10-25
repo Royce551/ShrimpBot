@@ -40,7 +40,7 @@ namespace Shrimpbot.Modules
                 "all" => ImageType.All,
                 _ => ImageType.All,
             };
-            DatabaseManager.CreateImage(path, imageType, new CuteImage { Creator = creator, Path = path, Source = source, Uploader = uploader });
+            DatabaseManager.CreateImage(path, imageType, new CuteImage { Creator = creator, Path = path, ImageSource = source, Uploader = uploader });
         }
         [Command("databaseevalsql")]
         public async Task DatabaseEvaluateSql(string sql)

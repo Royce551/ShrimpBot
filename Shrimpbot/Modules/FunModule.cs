@@ -242,55 +242,15 @@ namespace Shrimpbot.Modules
         [Summary("Gets a random cute image")]
         public async Task Cute(string type = "all", string source = "curated")
         {
-            var imageType = type.ToLower() switch
-            {
-                "anime" => ImageType.Anime,
-                "catgirls" => ImageType.Catgirls,
-                "all" => ImageType.All,
-                _ => ImageType.All,
-            };
-            var imageSource = source.ToLower() switch
-            {
-                "curated" => ImageSource.Curated,
-                "legacy" => ImageSource.LegacyImages,
-                "online" => ImageSource.Online,
-                _ => ImageSource.Curated
-            };
+            var imageType = CuteService.ParseImageType(type);
+            var imageSource = CuteService.ParseImageSource(source);
             var server = DatabaseManager.GetServer(Context.Guild.Id);
             if (imageSource == ImageSource.Online && !server.AllowsPotentialNSFW)
             {
                 await ReplyAsync(MessagingUtils.GetServerNoPermissionsString());
                 return;
             }
-            var image = CuteService.GetImage(imageSource, imageType);
-
-            var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
-            if (imageSource == ImageSource.Online) // Involves URLs
-            {
-                var builder = new StringBuilder();
-                if (!string.IsNullOrEmpty(image.Creator)) builder.AppendLine($"Creator: {image.Creator}");
-                if (!string.IsNullOrEmpty(image.Uploader)) builder.AppendLine($"Uploaded by {image.Uploader}");
-                builder.AppendLine($"Source: {image.Source}");
-
-                embedBuilder.ImageUrl = image.Path;
-                embedBuilder.Url = image.Path;
-                embedBuilder.WithDescription(builder.ToString());
-                var embed = embedBuilder.Build();
-                await ReplyAsync(embed: embed);
-            }
-            else // Involves local files
-            {
-                var builder = new StringBuilder();
-                if (!string.IsNullOrEmpty(image.Creator)) builder.AppendLine($"Creator: {image.Creator}");
-                if (!string.IsNullOrEmpty(image.Uploader)) builder.AppendLine($"Uploaded by {image.Uploader}");
-                builder.AppendLine($"Source: {image.Source}");
-
-                string path = Path.GetFileName(image.Path);
-                embedBuilder.ImageUrl = $"attachment://{path}";
-                embedBuilder.WithDescription(builder.ToString());
-                var embed = embedBuilder.Build();
-                await Context.Channel.SendFileAsync(new FileStream(image.Path, FileMode.Open), path, embed: embed);
-            }
+            CuteService.GetImage(imageSource, imageType).SendEmbed(Context);
         }
         [Command("cutesearch")]
         [Summary("Searches image boards for an image.")]
@@ -302,18 +262,7 @@ namespace Shrimpbot.Modules
                 await ReplyAsync(MessagingUtils.GetServerNoPermissionsString());
                 return;
             }
-            var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
-            var image = CuteService.SearchImageBoard(tags);
-            var builder = new StringBuilder();
-            if (!string.IsNullOrEmpty(image.Creator)) builder.AppendLine($"Creator: {image.Creator}");
-            if (!string.IsNullOrEmpty(image.Uploader)) builder.AppendLine($"Uploaded by {image.Uploader}");
-            builder.AppendLine($"Source: {image.Source}");
-
-            embedBuilder.ImageUrl = image.Path;
-            embedBuilder.Url = image.Path;
-            embedBuilder.WithDescription(builder.ToString());
-            var embed = embedBuilder.Build();
-            await ReplyAsync(embed: embed);
+            CuteService.SearchImageBoard(tags).SendEmbed(Context);
         }
     }
 }

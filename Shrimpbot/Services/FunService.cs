@@ -125,20 +125,8 @@ namespace Shrimpbot.Services
             // turn
             var protagonist = Protagonist;
             var enemy = Enemy;
-            var proResults = action switch
-            {
-                ShrimpBattleActionType.Attack => Protagonist.Attack(rng, ref enemy),
-                ShrimpBattleActionType.UseMagic => Protagonist.UseMagic(rng, ref enemy),
-                ShrimpBattleActionType.Heal => Protagonist.Heal(this),
-                _ => throw new Exception("fucky wucky")
-            };
-            var eneResults = turn switch
-            {
-                ShrimpBattleActionType.Attack => Enemy.Attack(rng, ref protagonist),
-                ShrimpBattleActionType.UseMagic => Enemy.UseMagic(rng, ref protagonist),
-                ShrimpBattleActionType.Heal => Enemy.Heal(this),
-                _ => throw new Exception("fucky wucky")
-            };
+            var proResults = PerformActionForType(action, rng, protagonist, enemy, this);
+            var eneResults = PerformActionForType(turn, rng, enemy, protagonist, this);
             Protagonist = protagonist;
             Enemy = enemy;
 
@@ -152,20 +140,22 @@ namespace Shrimpbot.Services
         {
             if (Turns >= 15) InBlitzMode = true;
             var rng = new Random();
-            var results = action switch
-            {
-                ShrimpBattleActionType.Attack => attacker.Attack(rng, ref target),
-                ShrimpBattleActionType.UseMagic => attacker.UseMagic(rng, ref target),
-                ShrimpBattleActionType.Heal => attacker.Heal(this),
-                _ => throw new Exception("fucky wucky")
-            };
+            var results = PerformActionForType(action, rng, attacker, target, this);
             Protagonist.Mana += 3;
             Enemy.Mana += 3;
 
             Turns++;
             return results;
         }
+        public static ShrimpBattleTurnResults PerformActionForType(ShrimpBattleActionType type, Random rng, ShrimpBattlePerson attacker, ShrimpBattlePerson target, ShrimpBattle battle) => type switch
+        {
+            ShrimpBattleActionType.Attack => attacker.Attack(rng, ref target),
+            ShrimpBattleActionType.UseMagic => attacker.UseMagic(rng, ref target),
+            ShrimpBattleActionType.Heal => attacker.Heal(battle),
+            _ => throw new Exception("fucky wucky")
+        };
     }
+
     public class ShrimpBattlePerson
     {
         public int Health { get; set; } = 100;

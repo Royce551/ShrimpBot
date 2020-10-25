@@ -8,6 +8,8 @@ using System.Text;
 using System.Net.Http;
 using Newtonsoft.Json.Linq;
 using Shrimpbot.Services.Database;
+using Shrimpbot.Utilities;
+using Discord.Commands;
 
 namespace Shrimpbot.Services
 {
@@ -49,7 +51,8 @@ namespace Shrimpbot.Services
             };
             var json = JArray.Parse(client.GetStringAsync($"https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&tags={tags}").Result);
             image.Uploader = json.SelectToken($"$[{index}].owner").ToString();
-            image.Source = json.SelectToken($"$[{index}].source").ToString();
+            image.ImageSource = json.SelectToken($"$[{index}].source").ToString();
+            image.FileSource = ImageSource.Online;
             image.Path = json.SelectToken($"$[{index}].file_url").ToString();
             return image;
         }
@@ -67,6 +70,7 @@ namespace Shrimpbot.Services
 
             int number = Rng.Next(1, imagePaths.Count + 1);
             var image = imagePaths[number].Image;
+            image.FileSource = ImageSource.Curated;
 
             return image;
         }
@@ -90,6 +94,7 @@ namespace Shrimpbot.Services
             image.Path = Path.Combine(Directory.GetCurrentDirectory(), "LegacyImages", $"cute{number}.png");
             image.Creator = $"Legacy image #{number}";
             image.Uploader = $"Squid Grill";
+            image.FileSource = ImageSource.LegacyImages;
             return image;
         }
         public static CuteImage SearchImageBoard(string tags)
@@ -98,17 +103,64 @@ namespace Shrimpbot.Services
             int index = Rng.Next(1, 101);
             var json = JArray.Parse(client.GetStringAsync($"https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&tags={tags}").Result);
             image.Uploader = json.SelectToken($"$[{index}].owner").ToString();
-            image.Source = json.SelectToken($"$[{index}].source").ToString();
+            image.ImageSource = json.SelectToken($"$[{index}].source").ToString();
+            image.FileSource = ImageSource.Online;
             image.Path = json.SelectToken($"$[{index}].file_url").ToString();
             return image;
         }
+        public static ImageType ParseImageType(string type) => type.ToLower() switch
+        {
+            "anime" => ImageType.Anime,
+            "catgirls" => ImageType.Catgirls,
+            "all" => ImageType.All,
+            _ => ImageType.All
+        };
+        public static ImageSource ParseImageSource(string source) => source.ToLower() switch
+        {
+            "curated" => ImageSource.Curated,
+            "legacy" => ImageSource.LegacyImages,
+            "online" => ImageSource.Online,
+            _ => ImageSource.Curated
+        };
     }
     public class CuteImage
     {
         public string Path { get; set; }
         public string Creator { get; set; } = string.Empty;
         public string Uploader { get; set; } = string.Empty;
-        public string Source { get; set; } = "Unknown source :(";
+        public string ImageSource { get; set; } = "Unknown source :(";
+        public ImageSource FileSource { get; set; }
+        public async void SendEmbed(SocketCommandContext context)
+        {
+            var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
+            var builder = new StringBuilder();
+            if (FileSource == Services.ImageSource.Online) // Involves URLs
+            {
+
+                
+                if (!string.IsNullOrEmpty(Creator)) builder.AppendLine($"Creator: {Creator}");
+                if (!string.IsNullOrEmpty(Uploader)) builder.AppendLine($"Uploaded by {Uploader}");
+                builder.AppendLine($"Source: {ImageSource}");
+
+                embedBuilder.ImageUrl = Path;
+                embedBuilder.Url = Path;
+                embedBuilder.WithDescription(builder.ToString());
+                var embed = embedBuilder.Build();
+                await context.Channel.SendMessageAsync(embed: embed);
+            }
+            else // Involves local files
+            {
+                if (!string.IsNullOrEmpty(Creator)) builder.AppendLine($"Creator: {Creator}");
+                if (!string.IsNullOrEmpty(Uploader)) builder.AppendLine($"Uploaded by {Uploader}");
+                builder.AppendLine($"Source: {ImageSource}");
+
+                string path = System.IO.Path.GetFileName(Path);
+                embedBuilder.ImageUrl = $"attachment://{path}";
+                embedBuilder.WithDescription(builder.ToString());
+                var embed = embedBuilder.Build();
+                await context.Channel.SendFileAsync(new FileStream(Path, FileMode.Open), path, embed: embed);
+            }
+        }
     }
     public enum ImageType
     {
