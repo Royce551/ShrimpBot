@@ -43,6 +43,12 @@ namespace Shrimpbot.Modules
             if (runner is null) await ReplyAsync($":two_hearts: Your cuteness level is {user.Cuteness}/100.");
             else await ReplyAsync($":two_hearts: {runner.Username}'s cuteness is {user.Cuteness}/100.");
         }
+        [Command("uwuify")]
+        [Summary("uwu")]
+        public async Task Uwuify(string text)
+        {
+            await ReplyAsync(FunService.Uwuify(text));
+        }
         [Command("guess", RunMode = RunMode.Async)]
         [Summary("Guess the number!")]
         public async Task Guess(int maxNumber = 100)
@@ -163,11 +169,7 @@ namespace Shrimpbot.Modules
                     await ReplyAsync($"{battle.Enemy.Name} wins!");
                     return;
                 }
-                if (battle.Enemy.IsDead())
-                {
-                    await ReplyAsync($"{battle.Protagonist.Name} wins!");
-                    return;
-                } // TODO: reuse code and make this not be a pain to maintain in the future
+                 // TODO: reuse code and make this not be a pain to maintain in the future
                 // Player 1's turn
                 while (battle.Turn == ShrimpBattleTurn.Player1)
                 {
@@ -196,7 +198,12 @@ namespace Shrimpbot.Modules
                         $"{player1TurnResults.Response}\n" +
                         $"**{battle.Protagonist.Name}** dealt **{player1TurnResults.DamageDealt} damage** and used {player1TurnResults.ManaUsed} mana.");
                     player1Response = null;
-                } 
+                }
+                if (battle.Enemy.IsDead())
+                {
+                    await ReplyAsync($"{battle.Protagonist.Name} wins!");
+                    return;
+                }
                 // Player 2's turn
                 while (battle.Turn == ShrimpBattleTurn.Player2)
                 {

@@ -37,6 +37,58 @@ namespace Shrimpbot.Services
             return responses[rng.Next(0, responses.Length - 1)];
         }
 
+        public static string Uwuify(string text)
+        {
+            var kaomoji = new string[]
+            {
+                "(◡ ω ◡)",
+                "(˘ω˘)",
+                "(⑅˘꒳˘)",
+                "(˘ᵕ˘)",
+                "(˘˘˘)",
+                "( ᴜ ω ᴜ )",
+                "( ´ω` )۶",
+                "(„ᵕᴗᵕ„)",
+                "(ㅅꈍ ˘ ꈍ)",
+                "(⑅˘꒳˘)",
+                "( ｡ᵘ ᵕ ᵘ ｡)",
+                "( ᵘ ꒳ ᵘ ✼)",
+                "( ˘ᴗ˘ )",
+                "(ᵕᴗ ᵕ⁎)",
+                "*:･ﾟ✧(ꈍᴗꈍ)✧･ﾟ:*",
+                "*˚*(ꈍ ω ꈍ).₊̣̇.",
+                "(。U ω U。)",
+                "(U ᵕ U❁)",
+                "(◦ᵕ ˘ ᵕ◦)",
+                "( ˊ.ᴗˋ )",
+                "(灬´ᴗ`灬)",
+                "uwu",
+                "owo",
+            };
+            var weebPhrases = new string[]
+            {
+                " nyaa~",
+                " wan wan~!",
+                "~",
+                " Nyaa~"
+            };
+            var uwuifiedText = string.Empty;
+            foreach (char x in text)
+            {
+                uwuifiedText += x switch
+                {
+                    'r' => 'l',
+                    'l' => 'w',
+                    'R' => 'W',
+                    'L' => 'W',
+                    _ => x
+                };
+            }
+            var number = rng.Next(0, 2);
+            if (number == 0) uwuifiedText += $" {kaomoji[rng.Next(0, kaomoji.Length - 1)]}";
+            else if (number == 1) uwuifiedText += weebPhrases[rng.Next(0, weebPhrases.Length - 1)];
+            return uwuifiedText;
+        }
         public static ShrimpBattle CreateBattle(string userName)
         {
             var battle = new ShrimpBattle();
