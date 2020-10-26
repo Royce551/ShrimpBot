@@ -47,7 +47,8 @@ namespace Shrimpbot.Modules
         [Summary("uwu")]
         public async Task Uwuify(string text)
         {
-            await ReplyAsync(FunService.Uwuify(text));
+            if (!MessagingUtils.CheckForPings(text)) await ReplyAsync(FunService.Uwuify(text));
+            else await ReplyAsync($"{MessagingUtils.NoPermissionEmote} You can't ping everyone.");
         }
         [Command("guess", RunMode = RunMode.Async)]
         [Summary("Guess the number!")]

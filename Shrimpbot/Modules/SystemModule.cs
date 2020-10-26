@@ -32,25 +32,41 @@ namespace Shrimpbot.Modules
         }
         [Command("help")]
         [Summary("Gets a list of commands")]
-        public async Task Help()
+        public async Task Help(string search = null)
         {
-            List<ModuleInfo> modules = CommandService.Modules.ToList();
             var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
-
-            foreach (ModuleInfo module in modules)
+            if (search is null)
             {
-                if (module.Name == "Bot Management") continue;
-                string summary = $"{module.Summary}\r\n\r\n";
+                List<ModuleInfo> modules = CommandService.Modules.ToList();
                 
+                foreach (ModuleInfo module in modules)
+                {
+                    if (module.Name == "Bot Management") continue;
+                    string summary = $"{module.Summary}\r\n\r\n";
+
+                    summary += string.Join(", ", module.Commands.Select(x => x.Name));
+                    embedBuilder.AddField(module.Name, summary, inline: true);
+                }
+                await ReplyAsync(
+                    ":information_source: **Shrimpbot Help**\n" +
+                    $"To get more information about a category, type {Config.Prefix}help [category].", false, embedBuilder.Build());
+            }
+            else
+            {
+                ModuleInfo module = CommandService.Modules.FirstOrDefault(x => x.Name.ToLower() == search.ToLower());
+                if (module is null)
+                {
+                    await ReplyAsync($"{MessagingUtils.InvalidParameterEmote} The category you tried to search for doesn't seem to exist.");
+                    return;
+                }
+                string summary = $"{module.Summary}\r\n\r\n";
                 foreach (CommandInfo command in module.Commands)
                 {
-                    // Get the command Summary attribute information
-                    string embedFieldText = command.Summary ?? "No description available\n";
-                    summary += $"__{command.Name}__ - {command.Summary}\n";
+                    summary += $"__{command.Name}__ - {command.Summary ?? "No description"}\n";
                 }
-                embedBuilder.AddField(module.Name, summary, inline:true);
+                embedBuilder.AddField(module.Name, summary, inline: true);
+                await ReplyAsync(":information_source: **Shrimpbot Help**", embed:embedBuilder.Build());
             }
-            await ReplyAsync(":information_source: **Shrimpbot Help**", false, embedBuilder.Build());
         }
         [Command("about")]
         [Summary("Gets information about Shrimpbot")]
