@@ -73,20 +73,27 @@ namespace Shrimpbot.Services
                 " Nyaa~"
             };
             var uwuifiedText = string.Empty;
+            string InsertWeebStuff()
+            {
+                var number = rng.Next(0, 2);
+                if (number == 0) return $" {kaomoji[rng.Next(0, kaomoji.Length - 1)]}";
+                else if (number == 1) return weebPhrases[rng.Next(0, weebPhrases.Length - 1)];
+                else return string.Empty;
+            }
             foreach (char x in text)
             {
                 uwuifiedText += x switch
                 {
-                    'r' => 'l',
+                    'r' => 'w',
                     'l' => 'w',
                     'R' => 'W',
                     'L' => 'W',
                     _ => x
                 };
             }
-            var number = rng.Next(0, 2);
-            if (number == 0) uwuifiedText += $" {kaomoji[rng.Next(0, kaomoji.Length - 1)]}";
-            else if (number == 1) uwuifiedText += weebPhrases[rng.Next(0, weebPhrases.Length - 1)];
+            uwuifiedText = uwuifiedText.Replace("! ", '!' + InsertWeebStuff() + ' ');
+            uwuifiedText = uwuifiedText.Replace(". ", '.' + InsertWeebStuff() + ' ');
+            uwuifiedText = uwuifiedText.Replace("? ", '?' + InsertWeebStuff() + ' ');
             return uwuifiedText;
         }
         public static ShrimpBattle CreateBattle(string userName)

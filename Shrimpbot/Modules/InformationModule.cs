@@ -7,6 +7,7 @@ using Shrimpbot.Services.Database;
 using Shrimpbot.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Text;
 using System.Threading.Tasks;
 

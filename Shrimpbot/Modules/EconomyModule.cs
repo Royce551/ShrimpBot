@@ -119,19 +119,27 @@ namespace Shrimpbot.Modules
         [Summary("See how your wealth stacks up to others.")]
         public async Task Leaderboard()
         {
-            var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
-            var users = DatabaseManager.GetAllUsers().GetRange(0, 10).OrderByDescending(o => o.Money);
-            var stringBuilder = new StringBuilder();
-            int i = 1;
-            foreach (var user in users)
+            try
             {
-                stringBuilder.AppendLine($"{i} - {Client.GetUser(user.Id).Username}: {Config.CurrencySymbol}{string.Format("{0:n}", user.Money)}");
-                i++;
-            }
+                var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
+                var users = DatabaseManager.GetAllUsers().GetRange(0, 10).OrderByDescending(o => o.Money);
+                var stringBuilder = new StringBuilder();
+                int i = 1;
+                stringBuilder.AppendLine("a");
+                foreach (var user in users)
+                {
+                    string userx;
+                    try { userx = Client.GetUser(user.Id).Username; }
+                    catch { userx = "Doesn't exist somehow?"; }
+                    stringBuilder.AppendLine($"{i} - {userx}: {Config.CurrencySymbol}{string.Format("{0:n}", user.Money)}");
+                    i++;
+                }
 
-            embedBuilder.AddField($"Top {Config.Name} users",
-                stringBuilder.ToString());
-            await ReplyAsync(embed: embedBuilder.Build());
+                embedBuilder.AddField($"Top {Config.Name} users",
+                    stringBuilder.ToString());
+                await ReplyAsync(embed: embedBuilder.Build());
+            }
+            catch (Exception e) { await ReplyAsync(e.Message + "\n" + e.StackTrace); }
         }
     }
 }

@@ -2,9 +2,9 @@
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
+using Shrimpbot.Services;
 using Shrimpbot.Services.Configuration;
 using Shrimpbot.Services.Database;
-using Shrimpbot.Services.Moderation;
 using Shrimpbot.Utilities;
 using System;
 using System.Threading.Tasks;
@@ -24,28 +24,16 @@ namespace Shrimpbot.Modules
         public async Task ManageServer()
         {
             var server = DatabaseManager.GetServer(Context.Guild.Id);
-            var navigator = ModerationService.CreateBotModerationNavigator(server);
+            var navigator = ManagementService.CreateBotModerationNavigator(server);
 
-            async void ShowInitialPrompt()
-            {
-                var initialPromptEmbedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
-                initialPromptEmbedBuilder.WithAuthor(Context.User);
-                initialPromptEmbedBuilder.WithDescription($"{Context.Guild.Name} Settings");
-                initialPromptEmbedBuilder.AddField("The following properties are available to edit:",
-                    $"**1** - Allow potential NSFW in non- NSFW channels - {server.AllowsPotentialNSFW}\n" +
-                    $"**2** - Logging Channel - {server.LoggingChannel}\n" +
-                    $"**3** - System Channel - {server.SystemChannel}\n");
-                initialPromptEmbedBuilder.WithFooter("Say 'quit' to exit.");
-                await ReplyAsync(embed: initialPromptEmbedBuilder.Build());
-            }
-            ShowInitialPrompt();
+            await ReplyAsync(embed: navigator.GetHomePage(Context).Build());
             while (true)
             {
                 var response = await NextMessageAsync(timeout: new TimeSpan(0, 0, 0, 0, -1)); // Infinite timeout
                 string responseString = response.ToString().ToLower();
-                if (responseString == "1") navigator.Navigate(Property.AllowsPotentialNSFW);
-                else if (responseString == "2") navigator.Navigate(Property.LoggingChannel);
-                else if (responseString == "3") navigator.Navigate(Property.SystemChannel);
+                if (responseString == "1") navigator.Navigate(ServerProperty.AllowsPotentialNSFW);
+                else if (responseString == "2") navigator.Navigate(ServerProperty.LoggingChannel);
+                else if (responseString == "3") navigator.Navigate(ServerProperty.SystemChannel);
                 else if (responseString == "quit") return;
                 else
                 {
@@ -60,13 +48,57 @@ namespace Shrimpbot.Modules
                     if (pageResponseString == "quit") return;
                     if (pageResponseString == "back")
                     {
-                        ShowInitialPrompt();
+                        await ReplyAsync(embed: navigator.GetHomePage(Context).Build());
                         break;
                     }
                     if (navigator.Set(pageResponseString.TrimStart("set".ToCharArray()).TrimStart()))
                     {
                         DatabaseManager.WriteServer(navigator.Server);
-                        ShowInitialPrompt();
+                        await ReplyAsync(embed: navigator.GetHomePage(Context).Build());
+                        break;
+                    }
+                    else
+                    {
+                        await ReplyAsync("Your input wasn't valid.");
+                        continue;
+                    }
+                }
+            }
+        }
+        [Command("usersettings", RunMode = RunMode.Async)]
+        [Summary("Configures settings for yourself.")]
+        public async Task UserSettings()
+        {
+            var user = DatabaseManager.GetUser(Context.User.Id);
+            var navigator = ManagementService.CreateUserSettingsNavigator(user);
+
+            await ReplyAsync(embed: navigator.GetHomePage(Context).Build());
+            while (true)
+            {
+                var response = await NextMessageAsync(timeout: new TimeSpan(0, 0, 0, 0, -1)); // Infinite timeout
+                string responseString = response.ToString().ToLower();
+                if (responseString == "1") navigator.Navigate(UserProperty.TimeZone);
+                else if (responseString == "quit") return;
+                else
+                {
+                    await ReplyAsync("That's not a valid property. If you need to exit, type 'quit'.");
+                    continue;
+                }
+                await ReplyAsync(embed: navigator.GetFormattedCurrentPage(Context.User).Build());
+                while (true)
+                {
+                    var pageResponse = await NextMessageAsync(timeout: new TimeSpan(0, 0, 0, 0, -1)); // Infinite timeout
+                    string pageResponseString = pageResponse.ToString().ToLower();
+                    if (pageResponseString == "quit") return;
+                    if (pageResponseString == "back")
+                    {
+                        await ReplyAsync(embed: navigator.GetHomePage(Context).Build());
+                        break;
+                    }
+                    if (navigator.Set(pageResponseString.TrimStart("set".ToCharArray()).TrimStart()))
+                    {
+                        DatabaseManager.WriteUser(navigator.User);
+                        await ReplyAsync(embed: navigator.GetHomePage(Context).Build());
                         break;
                     }
                     else
