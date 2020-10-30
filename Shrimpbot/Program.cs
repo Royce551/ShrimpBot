@@ -12,8 +12,7 @@ namespace Shrimpbot
     {
         static async Task Main(string[] args)
         {
-            var clientConfig = new DiscordSocketConfig { AlwaysDownloadUsers = true };
-            var client = new DiscordSocketClient(clientConfig);
+            var client = new DiscordSocketClient();
             var config = ConfigurationManager.Read();
             var runtimeInformation = new BotRuntimeInformation { StartupTime = DateTime.Now };
             client.Log += Client_Log;

@@ -4,6 +4,9 @@ using System;
 
 namespace Shrimpbot.Services
 {
+    /// <summary>
+    /// Logic behind Shrimpbot's fun commands
+    /// </summary>
     public static class FunService
     {
         static Random rng = new Random();

@@ -11,6 +11,9 @@ using System.Text;
 
 namespace Shrimpbot.Services
 {
+    /// <summary>
+    /// Provides multi page "navigators" ideal for doing configuration.
+    /// </summary>
     public class ManagementService
     {
         public static UserSettingsNavigator CreateUserSettingsNavigator(DatabaseUser user) => new UserSettingsNavigator { User = user };

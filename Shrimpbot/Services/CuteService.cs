@@ -13,6 +13,9 @@ using Discord.Commands;
 
 namespace Shrimpbot.Services
 {
+    /// <summary>
+    /// Manages image commands and integrations with image boards.
+    /// </summary>
     public class CuteService
     {
         public static HttpClient client = new HttpClient();
