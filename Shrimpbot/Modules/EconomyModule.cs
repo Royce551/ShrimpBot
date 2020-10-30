@@ -122,27 +122,22 @@ namespace Shrimpbot.Modules
         [Summary("See how your wealth stacks up to others.")]
         public async Task Leaderboard()
         {
-            try
+            var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
+            List<DatabaseUser> users = DatabaseManager.GetAllUsers();
+            if (users.Count >= 10) users = users.GetRange(0, 10).OrderByDescending(o => o.Money).ToList();
+            else users = users.OrderByDescending(o => o.Money).ToList();
+            var stringBuilder = new StringBuilder();
+            int i = 1;
+            foreach (var user in users)
             {
-                var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
-                List<DatabaseUser> users = DatabaseManager.GetAllUsers();
-                if (users.Count >= 10) users = users.GetRange(0, 10).OrderByDescending(o => o.Money).ToList();
-                else users = users.OrderByDescending(o => o.Money).ToList();
-                var stringBuilder = new StringBuilder();
-                int i = 1;
-                foreach (var user in users)
-                {
-                    string userx;
-                    userx = Client.Rest.GetUserAsync(user.Id).Result.Username;
-                    stringBuilder.AppendLine($"{i} - {userx}: {Config.CurrencySymbol}{string.Format("{0:n}", user.Money)}");
-                    i++;
-                }
-
-                embedBuilder.AddField($"Top {Config.Name} users",
-                    stringBuilder.ToString());
-                await ReplyAsync(embed: embedBuilder.Build());
+                string userx;
+                userx = Client.Rest.GetUserAsync(user.Id).Result.Username;
+                stringBuilder.AppendLine($"{i} - {userx}: {Config.CurrencySymbol}{string.Format("{0:n}", user.Money)}");
+                i++;
             }
-            catch (Exception e) { await ReplyAsync(e.Message + "\n" + e.StackTrace); }
+
+            embedBuilder.AddField($"Top {Config.Name} users", stringBuilder.ToString());
+            await ReplyAsync(embed: embedBuilder.Build());
         }
     }
 }
