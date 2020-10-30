@@ -12,13 +12,13 @@ namespace Shrimpbot
     {
         static async Task Main(string[] args)
         {
-            var client = new DiscordSocketClient();
+            var clientConfig = new DiscordSocketConfig { AlwaysDownloadUsers = true };
+            var client = new DiscordSocketClient(clientConfig);
             var config = ConfigurationManager.Read();
             var runtimeInformation = new BotRuntimeInformation { StartupTime = DateTime.Now };
             client.Log += Client_Log;
             var commandHandler = new CommandHandler(client, new CommandService(), config, runtimeInformation);
             await commandHandler.InstallCommandsAsync();
-
             await client.LoginAsync(TokenType.Bot, config.Token);
             await client.StartAsync();
 
@@ -28,7 +28,6 @@ namespace Shrimpbot
         static Task Client_Log(LogMessage msg)
         {
             LoggingService.Log(msg.Severity, msg.Message);
-            Console.ResetColor();
             return Task.CompletedTask;
         }
     }

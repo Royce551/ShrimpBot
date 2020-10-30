@@ -1,10 +1,13 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.Rest;
 using Discord.WebSocket;
 using Shrimpbot.Services.Configuration;
 using Shrimpbot.Services.Database;
 using Shrimpbot.Utilities;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -122,15 +125,15 @@ namespace Shrimpbot.Modules
             try
             {
                 var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
-                var users = DatabaseManager.GetAllUsers().GetRange(0, 10).OrderByDescending(o => o.Money);
+                List<DatabaseUser> users = DatabaseManager.GetAllUsers();
+                if (users.Count >= 10) users = users.GetRange(0, 10).OrderByDescending(o => o.Money).ToList();
+                else users = users.OrderByDescending(o => o.Money).ToList();
                 var stringBuilder = new StringBuilder();
                 int i = 1;
-                stringBuilder.AppendLine("a");
                 foreach (var user in users)
                 {
                     string userx;
-                    try { userx = Client.GetUser(user.Id).Username; }
-                    catch { userx = "Doesn't exist somehow?"; }
+                    userx = Client.Rest.GetUserAsync(user.Id).Result.Username;
                     stringBuilder.AppendLine($"{i} - {userx}: {Config.CurrencySymbol}{string.Format("{0:n}", user.Money)}");
                     i++;
                 }
