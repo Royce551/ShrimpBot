@@ -12,6 +12,7 @@ using Discord.Addons.Interactive;
 using System.Net;
 using System.IO;
 using System.Text;
+using System.Collections.Generic;
 
 namespace Shrimpbot.Modules
 {
@@ -237,6 +238,48 @@ namespace Shrimpbot.Modules
                 }
             }
         }
+        [Command("typerace", RunMode = RunMode.Async)]
+        [Summary("mechanical keyboard sounds intensify")]
+        public async Task Hangman()
+        {
+            var players = new List<SocketUser>();
+            var host = Context.User;
+            players.Add(host);
+            await ReplyAsync("Any additional players, say 'join' to join! Say 'start' to start. Say 'quit' to stop looking. (big WIP)");
+            while (true)
+            {
+                var response = await NextMessageAsync(fromSourceUser: false, timeout: new TimeSpan(0, 0, 0, 0, -1));
+                if (response.Content == "join")
+                {
+                    if (players.Contains(response.Author))
+                    {
+                        await ReplyAsync("You're already in the game you idoit");
+                        continue;
+                    }
+                }
+                else if (response.Content == "start" && response.Author == host) break;
+                else if (response.Content == "quit") return;
+            }
+            var paragraph = FunService.GetRandomParagraph();
+            var startTime = DateTime.Now;
+            await ReplyAsync($"You have idk minutes to type this thing! glhf\n{paragraph}");
+            while (players.Count > 0)
+            {
+                var response = await NextMessageAsync(fromSourceUser: false, timeout: new TimeSpan(0, 0, 0, 0, -1));
+                if (!players.Contains(response.Author)) continue;
+                if (response.Content == paragraph)
+                {
+                    var timeTaken = DateTime.Now - startTime;
+                    var wpm = paragraph.Length / 5 /*iirc words in typing are 5 letters*/ / timeTaken.TotalMilliseconds;
+                    if (timeTaken.TotalSeconds <= 60)
+                    {
+                        await ReplyAsync($"I CAN SEE THROUGH YOUR BS YOU HACKER temporary debug - {timeTaken}");
+                        continue;
+                    }
+                    await ReplyAsync($"Congrats! You took {timeTaken} and typed {wpm} wpm.");
+                }
+            }
+        }
         [Command("cute")]
         [Summary("Gets a random cute image")]
         public async Task Cute(string type = "all", string source = "curated")
@@ -263,5 +306,6 @@ namespace Shrimpbot.Modules
             }
             CuteService.SearchImageBoard(tags).SendEmbed(Context);
         }
+        
     }
 }

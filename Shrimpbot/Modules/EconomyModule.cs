@@ -65,8 +65,8 @@ namespace Shrimpbot.Modules
         public async Task Gamble(decimal bet)
         {
             var runner = DatabaseManager.GetUser(Context.User.Id);
-            var runnergamble = rng.Next(1, 20);
-            var shrimpgamble = rng.Next(1, 20);
+            var runnergamble = rng.Next(1, 21);
+            var shrimpgamble = rng.Next(1, 21);
             if (bet > runner.Money)
             {
                 await ReplyAsync("Hold up! You don't even have enough money to bet this amount!");
@@ -81,12 +81,18 @@ namespace Shrimpbot.Modules
             {
                 bet *= 2;
                 runner.Money += bet;
-                await ReplyAsync($"You - {runnergamble} | {Config.Name} - {shrimpgamble}, You won! Your bet got doubled, leaving you with {string.Format("{0:n}", runner.Money)} {Config.Currency}. Naisuu!!");
+                await ReplyAsync($"You - {runnergamble} | {Config.Name} - {shrimpgamble}\n**You won!** Your bet got doubled, leaving you with {string.Format("{0:n}", runner.Money)} {Config.Currency}. Naisuu!!");
+            }
+            else if (runnergamble < shrimpgamble)
+            {
+                runner.Money -= bet;
+                await ReplyAsync($"You - {runnergamble} | {Config.Name} - {shrimpgamble}\n**Damn, you lost.** You now have {string.Format("{0:n}", runner.Money)} {Config.Currency}.");
             }
             else
             {
-                runner.Money -= bet;
-                await ReplyAsync($"You - {runnergamble} | {Config.Name} - {shrimpgamble}, Damn, you lost. You now have {string.Format("{0:n}", runner.Money)} {Config.Currency}.");
+                bet *= 4;
+                runner.Money += bet;
+                await ReplyAsync($"You - {runnergamble} | {Config.Name} - {shrimpgamble}\n**JACKPOT!!** Your bet got quadrupled, leaving you with {string.Format("{0:n}", runner.Money)} {Config.Currency}. The gods smile upon you.");
             }
             DatabaseManager.WriteUser(runner);
         }
@@ -130,8 +136,8 @@ namespace Shrimpbot.Modules
             int i = 1;
             foreach (var user in users)
             {
-                string userx;
-                userx = Client.Rest.GetUserAsync(user.Id).Result.Username;
+                string userx = Client.Rest.GetUserAsync(user.Id).Result.Username;
+                if (userx == Context.User.Username) userx = $"**{userx}**";
                 stringBuilder.AppendLine($"{i} - {userx}: {Config.CurrencySymbol}{string.Format("{0:n}", user.Money)}");
                 i++;
             }
