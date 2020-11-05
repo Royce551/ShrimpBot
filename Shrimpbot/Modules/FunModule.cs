@@ -242,42 +242,26 @@ namespace Shrimpbot.Modules
         [Summary("mechanical keyboard sounds intensify")]
         public async Task Hangman()
         {
-            var players = new List<SocketUser>();
-            var host = Context.User;
-            players.Add(host);
-            await ReplyAsync("Any additional players, say 'join' to join! Say 'start' to start. Say 'quit' to stop looking. (big WIP)");
+            var paragraph = FunService.GetRandomParagraph();
+            var wordCount = paragraph.Length / 5; // words in typing are 5 letters, regardless of the actual words
+            var startTime = DateTime.Now;
+            await ReplyAsync($"You have idk minutes to type this thing! glhf\n\n{paragraph}");
             while (true)
             {
-                var response = await NextMessageAsync(fromSourceUser: false, timeout: new TimeSpan(0, 0, 0, 0, -1));
-                if (response.Content == "join")
-                {
-                    if (players.Contains(response.Author))
-                    {
-                        await ReplyAsync("You're already in the game you idoit");
-                        continue;
-                    }
-                }
-                else if (response.Content == "start" && response.Author == host) break;
-                else if (response.Content == "quit") return;
-            }
-            var paragraph = FunService.GetRandomParagraph();
-            var startTime = DateTime.Now;
-            await ReplyAsync($"You have idk minutes to type this thing! glhf\n{paragraph}");
-            while (players.Count > 0)
-            {
-                var response = await NextMessageAsync(fromSourceUser: false, timeout: new TimeSpan(0, 0, 0, 0, -1));
-                if (!players.Contains(response.Author)) continue;
+                var response = await NextMessageAsync( timeout: new TimeSpan(0, 0, 0, 0, -1));
                 if (response.Content == paragraph)
                 {
                     var timeTaken = DateTime.Now - startTime;
-                    var wpm = paragraph.Length / 5 /*iirc words in typing are 5 letters*/ / timeTaken.TotalMilliseconds;
-                    if (timeTaken.TotalSeconds <= 60)
+                    var wpm = wordCount / timeTaken.TotalMinutes;
+                    if (timeTaken.TotalMilliseconds <= wordCount * 200)
                     {
-                        await ReplyAsync($"I CAN SEE THROUGH YOUR BS YOU HACKER temporary debug - {timeTaken}");
+                        await ReplyAsync($"I CAN SEE THROUGH YOUR BS YOU HACKER");
                         continue;
                     }
-                    await ReplyAsync($"Congrats! You took {timeTaken} and typed {wpm} wpm.");
+                    await ReplyAsync($"Congrats! You took {timeTaken:mm\\:ss} and typed {Math.Round(wpm)} wpm.");
+                    return;
                 }
+                else await ReplyAsync("Looks like you made a mistake.");
             }
         }
         [Command("cute")]
@@ -293,18 +277,6 @@ namespace Shrimpbot.Modules
                 return;
             }
             CuteService.GetImage(imageSource, imageType).SendEmbed(Context);
-        }
-        [Command("cutesearch")]
-        [Summary("Searches image boards for an image.")]
-        public async Task SearchOnline(string tags)
-        {
-            var server = DatabaseManager.GetServer(Context.Guild.Id);
-            if (!server.AllowsPotentialNSFW)
-            {
-                await ReplyAsync(MessagingUtils.GetServerNoPermissionsString());
-                return;
-            }
-            CuteService.SearchImageBoard(tags).SendEmbed(Context);
         }
         
     }

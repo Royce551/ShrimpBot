@@ -103,11 +103,7 @@ namespace Shrimpbot.Services
         {
             var paragraphs = new string[]
             {
-                "With maglev technology, there is just one moving part: the train itself. " +
-                "The train travels along a guideway of magnets which control the train's stability and speed. " +
-                "Propulsion and levitation require no moving parts. " +
-                "This in stark contrast to electric multiple units that may have several dozen parts per bogie. " +
-                "Maglev trains are therefore quieter and smoother than conventional trains and have the potential for much higher speeds.",
+                "test paragraph test paragraph lols",
 
             };
             return paragraphs[rng.Next(0, paragraphs.Length - 1)];

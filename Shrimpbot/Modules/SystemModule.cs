@@ -53,7 +53,7 @@ namespace Shrimpbot.Modules
             }
             else
             {
-                ModuleInfo module = CommandService.Modules.FirstOrDefault(x => x.Name.ToLower() == search.ToLower());
+                ModuleInfo module = CommandService.Modules.FirstOrDefault(x => x.Name.ToLower().StartsWith(search.ToLower()));
                 if (module is null)
                 {
                     await ReplyAsync($"{MessagingUtils.InvalidParameterEmote} The category you tried to search for doesn't seem to exist.");
@@ -74,8 +74,15 @@ namespace Shrimpbot.Modules
         {
             var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
             embedBuilder.ImageUrl = "https://cdn.discordapp.com/attachments/556283742008901645/600468110109048837/Banner.png";
-            embedBuilder.AddField($"{Config.Name} {Config.Version}", "by Squid Grill");
-            embedBuilder.AddField("Official Shrimpbot Discord Server", "https://discord.gg/fuJ6J4s");
+            embedBuilder.AddField($"{Config.Name} {Config.Version}", "by Squid Grill (and open source contributors)");
+            embedBuilder.AddField("Hosting",
+                $"Discord.NET Version: {DiscordConfig.Version}\n" +
+                $"OS: {Environment.OSVersion.VersionString}"
+                );
+            embedBuilder.AddField("Links", 
+                "Official ShrimpBot Discord Server: https://discord.gg/fuJ6J4s\n" +
+                "GitHub Repository: https://github.com/Royce551/ShrimpBot");
+            embedBuilder.WithFooter("Thank you for using ShrimpBot! ❤");
             await Client.CurrentUser.ModifyAsync(x => x.Username = $"{Config.Name} {Config.Version}");
             await ReplyAsync(null, false, embedBuilder.Build());
         }
@@ -84,7 +91,7 @@ namespace Shrimpbot.Modules
         public async Task Uptime()
         {
             var uptime = DateTime.Now - RuntimeInformation.StartupTime;
-            await ReplyAsync($":clock10: {Config.Name} has been up for {uptime.Hours} hours, {uptime.Minutes} minutes, and {uptime.Seconds} seconds!");
+            await ReplyAsync($":clock10: {Config.Name} has been up for {uptime.Days} days, {uptime.Hours} hours, {uptime.Minutes} minutes, and {uptime.Seconds} seconds!");
         }
         [Command("stats")]
         [Summary("Shows some interesting information about Shrimpbot")]
@@ -93,7 +100,7 @@ namespace Shrimpbot.Modules
             var uptime = DateTime.Now - RuntimeInformation.StartupTime;
             var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
             embedBuilder.AddField($"{Config.Name} stats",
-                $"Uptime: {uptime}\n" +
+                $"Uptime: {uptime}\n" + 
                 $"Commands handled: {RuntimeInformation.CommandsHandled}");
             await ReplyAsync(embed:embedBuilder.Build());
         }
