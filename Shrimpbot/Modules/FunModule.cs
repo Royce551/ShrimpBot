@@ -240,7 +240,7 @@ namespace Shrimpbot.Modules
         }
         [Command("typerace", RunMode = RunMode.Async)]
         [Summary("mechanical keyboard sounds intensify")]
-        public async Task Hangman()
+        public async Task TypeRace()
         {
             var paragraph = FunService.GetRandomParagraph();
             var wordCount = paragraph.Length / 5; // words in typing are 5 letters, regardless of the actual words
@@ -270,12 +270,16 @@ namespace Shrimpbot.Modules
         {
             var imageType = CuteService.ParseImageType(type);
             var imageSource = CuteService.ParseImageSource(source);
-            var server = DatabaseManager.GetServer(Context.Guild.Id);
-            if (imageSource == ImageSource.Online && !server.AllowsPotentialNSFW)
+            if (Context.Guild != null)
             {
-                await ReplyAsync(MessagingUtils.GetServerNoPermissionsString());
-                return;
+                var server = DatabaseManager.GetServer(Context.Guild.Id);
+                if (imageSource == ImageSource.Online && !server.AllowsPotentialNSFW)
+                {
+                    await ReplyAsync(MessagingUtils.GetServerNoPermissionsString());
+                    return;
+                }
             }
+            
             CuteService.GetImage(imageSource, imageType).SendEmbed(Context);
         }
         

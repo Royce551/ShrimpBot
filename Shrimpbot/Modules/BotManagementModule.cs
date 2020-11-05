@@ -22,7 +22,7 @@ namespace Shrimpbot.Modules
         public ConfigurationFile Config { get; set; }
 
         [Command("addimagetodatabase")]
-        public async Task AddImage(string path, string type, string creator, string uploader, string source )
+        public async Task AddImage(string path, string type, string creator, string source )
         {
             var runner = DatabaseManager.GetUser(Context.User.Id);
             if (runner.BotPermissions < BotPermissionLevel.BotAdministrator)
@@ -31,7 +31,6 @@ namespace Shrimpbot.Modules
                 return;
             }
             if (creator == "null") creator = string.Empty;
-            if (uploader == "null") uploader = string.Empty;
             if (source == "null") source = string.Empty;
             var imageType = type.ToLower() switch
             {
@@ -40,7 +39,7 @@ namespace Shrimpbot.Modules
                 "all" => ImageType.All,
                 _ => ImageType.All,
             };
-            DatabaseManager.CreateImage(path, imageType, new CuteImage { Creator = creator, Path = path, ImageSource = source, Uploader = uploader });
+            DatabaseManager.CreateImage(path, imageType, new CuteImage { Creator = creator, Path = path, ImageSource = source });
         }
         [Command("databaseevalsql")]
         public async Task DatabaseEvaluateSql(string sql)
