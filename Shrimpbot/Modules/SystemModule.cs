@@ -83,7 +83,7 @@ namespace Shrimpbot.Modules
                 "Official ShrimpBot Discord Server: https://discord.gg/fuJ6J4s\n" +
                 "GitHub Repository: https://github.com/Royce551/ShrimpBot");
             embedBuilder.WithFooter("Thank you for using ShrimpBot! ❤");
-            await Client.CurrentUser.ModifyAsync(x => x.Username = $"{Config.Name} {Config.Version}");
+            await Client.CurrentUser.ModifyAsync(x => x.Username = Config.Name);
             await ReplyAsync(null, false, embedBuilder.Build());
         }
         [Command("uptime")]

@@ -38,7 +38,7 @@ namespace Shrimpbot.Modules
             if (runner is null) user = DatabaseManager.GetUser(Context.User.Id); else user = DatabaseManager.GetUser(runner.Id);
             if (user.Cuteness == -1)
             {
-                user.Cuteness = new Random().Next(1, 100);
+                user.Cuteness = new Random().Next(1, 101);
                 DatabaseManager.WriteUser(user);
             }
             if (runner is null) await ReplyAsync($":two_hearts: Your cuteness level is {user.Cuteness}/100.");

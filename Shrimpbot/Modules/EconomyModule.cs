@@ -113,7 +113,7 @@ namespace Shrimpbot.Modules
                 string response = responses[rng.Next(0, responses.Length - 1)];
                 decimal moneygained = (decimal)Math.Round(50 * runner.DailyBonus);
                 runner.Money += moneygained;
-                runner.DailyBonus += 0.01;
+                runner.DailyBonus += 0.1;
                 runner.DailyLastClaimed = DateTime.Now;
                 await ReplyAsync(string.Format(response, moneygained, Config.Currency));
             }
