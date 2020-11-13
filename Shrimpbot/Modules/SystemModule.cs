@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace Shrimpbot.Modules
@@ -28,7 +29,10 @@ namespace Shrimpbot.Modules
             watch.Start();
             var message = await ReplyAsync("pinging");
             watch.Stop();
-            await message.ModifyAsync(msg => msg.Content = $"Pong! I'm here! That took {watch.ElapsedMilliseconds}ms.");
+            await message.ModifyAsync(msg => msg.Content = 
+            $"Pong! I'm here!\n" +
+            $"Message latency: {watch.ElapsedMilliseconds}ms\n" +
+            $"Gateway: {Client.Latency}ms");
         }
         [Command("help")]
         [Summary("Gets a list of commands")]
@@ -37,8 +41,7 @@ namespace Shrimpbot.Modules
             var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
             if (search is null)
             {
-                List<ModuleInfo> modules = CommandService.Modules.ToList();
-                
+                List<ModuleInfo> modules = CommandService.Modules.OrderBy(x => x.Name).ToList();
                 foreach (ModuleInfo module in modules)
                 {
                     if (module.Name == "Bot Management") continue;
@@ -76,6 +79,7 @@ namespace Shrimpbot.Modules
             embedBuilder.ImageUrl = "https://cdn.discordapp.com/attachments/556283742008901645/600468110109048837/Banner.png";
             embedBuilder.AddField($"{Config.Name} {Config.Version}", "by Squid Grill (and open source contributors)");
             embedBuilder.AddField("Hosting",
+                $".NET: {System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription}\n" +
                 $"Discord.NET Version: {DiscordConfig.Version}\n" +
                 $"OS: {Environment.OSVersion.VersionString}"
                 );

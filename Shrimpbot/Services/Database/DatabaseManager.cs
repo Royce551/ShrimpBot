@@ -94,6 +94,18 @@ namespace Shrimpbot.Services.Database
             }
         }
         /// <summary>
+        /// Gets a list of all servers in the database.
+        /// </summary>
+        /// <returns></returns>
+        public static List<DatabaseServer> GetAllServers()
+        {
+            var z = new List<DatabaseServer>();
+            if (Database.GetCollection<DatabaseServer>("Servers").Query().ToList().Count == 0)
+                Console.WriteLine(z.Count);
+            z = Database.GetCollection<DatabaseServer>("Servers").Query().ToList();
+            return z;
+        }
+        /// <summary>
         /// Gets a list of images of the selected type.
         /// </summary>
         /// <param name="type">The type of images to get.</param>
