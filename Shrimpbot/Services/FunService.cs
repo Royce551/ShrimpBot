@@ -9,7 +9,7 @@ namespace Shrimpbot.Services
     /// </summary>
     public static class FunService
     {
-        static Random rng = new Random();
+        static readonly Random rng = new Random();
 
         public static string GetEightBall()
         {
@@ -138,7 +138,7 @@ namespace Shrimpbot.Services
                     _ => "???"
                 },
                 Health = rng.Next(75, 105),
-            };    
+            };
             return battle;
         }
         public static MultiplayerShrimpBattle CreateBattleMultiplayer(string player1Name, string player2Name)
@@ -192,7 +192,7 @@ namespace Shrimpbot.Services
                 if (Protagonist.Health < defaultPerson.Health / 2 && Enemy.Mana > ShrimpBattlePerson.ManaNeededForOffensiveMagic) turn = ShrimpBattleActionType.UseMagic;
                 else turn = ShrimpBattleActionType.Attack;
             }
-                    
+
             // turn
             var protagonist = Protagonist;
             var enemy = Enemy;

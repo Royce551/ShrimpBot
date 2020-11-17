@@ -1,15 +1,13 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Addons.Interactive;
+using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using Shrimpbot.Services;
+using Shrimpbot.Services.Configuration;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
-using Shrimpbot.Services.Configuration;
-using Shrimpbot.Services.Database;
-using LiteDB;
-using Shrimpbot.Services;
-using Discord;
-using Discord.Addons.Interactive;
 
 namespace Shrimpbot
 {
@@ -45,7 +43,7 @@ namespace Shrimpbot
 
         private async Task HandleCommandAsync(SocketMessage messageParam)
         {
-            if (!(messageParam is SocketUserMessage message)) return;
+            if (messageParam is not SocketUserMessage message) return;
 
             var argPos = 0;
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Shrimpbot.Services.Database
+﻿namespace Shrimpbot.Services.Database
 {
     public class DatabaseImage
     {

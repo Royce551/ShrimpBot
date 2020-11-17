@@ -1,18 +1,13 @@
 ﻿using Discord;
+using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
-using LiteDB;
-using Shrimpbot.Utilities;
 using Shrimpbot.Services;
 using Shrimpbot.Services.Configuration;
 using Shrimpbot.Services.Database;
+using Shrimpbot.Utilities;
 using System;
 using System.Threading.Tasks;
-using Discord.Addons.Interactive;
-using System.Net;
-using System.IO;
-using System.Text;
-using System.Collections.Generic;
 
 namespace Shrimpbot.Modules
 {
@@ -24,7 +19,7 @@ namespace Shrimpbot.Modules
         public CommandService CommandService { get; set; }
         public ConfigurationFile Config { get; set; }
 
-        [Command("8ball", ignoreExtraArgs:true)]
+        [Command("8ball", ignoreExtraArgs: true)]
         [Summary("It's an 8 ball...")]
         public async Task EightBall()
         {
@@ -69,7 +64,7 @@ namespace Shrimpbot.Modules
                 await ReplyAsync($"What's my number? 1-{maxNumber}. You have {remainingAttempts + 1} attempts. Say 'quit' to quit. Good luck!");
                 while (true)
                 {
-                    var response = await NextMessageAsync(timeout:new TimeSpan(0, 0, 0, 0, -1)); // Infinite timeout
+                    var response = await NextMessageAsync(timeout: new TimeSpan(0, 0, 0, 0, -1)); // Infinite timeout
                     if (response.Author.Id != Context.User.Id || response is null) continue;
                     if (response.Content == "quit")
                     {
@@ -171,7 +166,7 @@ namespace Shrimpbot.Modules
                     await ReplyAsync($"{battle.Enemy.Name} wins!");
                     return;
                 }
-                 // TODO: reuse code and make this not be a pain to maintain in the future
+                // TODO: reuse code and make this not be a pain to maintain in the future
                 // Player 1's turn
                 while (battle.Turn == ShrimpBattleTurn.Player1)
                 {
@@ -248,7 +243,7 @@ namespace Shrimpbot.Modules
             await ReplyAsync($"You have idk minutes to type this thing! glhf\n\n{paragraph}");
             while (true)
             {
-                var response = await NextMessageAsync( timeout: new TimeSpan(0, 0, 0, 0, -1));
+                var response = await NextMessageAsync(timeout: new TimeSpan(0, 0, 0, 0, -1));
                 if (response.Content == paragraph)
                 {
                     var timeTaken = DateTime.Now - startTime;
@@ -279,9 +274,9 @@ namespace Shrimpbot.Modules
                     return;
                 }
             }
-            
+
             CuteService.GetImage(imageSource, imageType).SendEmbed(Context);
         }
-        
+
     }
 }

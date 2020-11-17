@@ -1,13 +1,11 @@
 ﻿using Discord;
 using Discord.Commands;
-using Discord.Rest;
 using Discord.WebSocket;
 using Shrimpbot.Services.Configuration;
 using Shrimpbot.Services.Database;
 using Shrimpbot.Utilities;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,7 +16,7 @@ namespace Shrimpbot.Modules
     [Summary("bling bling")]
     public class EconomyModule : ModuleBase<SocketCommandContext>
     {
-        static Random rng = new Random();
+        static readonly Random rng = new Random();
 
         public DiscordSocketClient Client { get; set; }
         public CommandService CommandService { get; set; }
@@ -101,7 +99,7 @@ namespace Shrimpbot.Modules
         public async Task Daily()
         {
             var runner = DatabaseManager.GetUser(Context.User.Id);
-            if (DateTime.Now - runner.DailyLastClaimed >= new TimeSpan(1,0,0,0))
+            if (DateTime.Now - runner.DailyLastClaimed >= new TimeSpan(1, 0, 0, 0))
             {
                 var responses = new string[]
                 {
@@ -119,7 +117,7 @@ namespace Shrimpbot.Modules
             }
             else
             {
-                await ReplyAsync($"You already worked for Squid today. Try again in {Math.Round(((runner.DailyLastClaimed + new TimeSpan(1,0,0,0)) - DateTime.Now).TotalHours)} hours.");
+                await ReplyAsync($"You already worked for Squid today. Try again in {Math.Round(((runner.DailyLastClaimed + new TimeSpan(1, 0, 0, 0)) - DateTime.Now).TotalHours)} hours.");
                 return;
             }
             DatabaseManager.WriteUser(runner);

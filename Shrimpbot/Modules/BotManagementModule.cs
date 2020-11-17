@@ -5,10 +5,6 @@ using Shrimpbot.Services;
 using Shrimpbot.Services.Configuration;
 using Shrimpbot.Services.Database;
 using Shrimpbot.Utilities;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Shrimpbot.Modules
@@ -22,7 +18,7 @@ namespace Shrimpbot.Modules
         public ConfigurationFile Config { get; set; }
 
         [Command("addimagetodatabase")]
-        public async Task AddImage(string path, string type, string creator, string source )
+        public async Task AddImage(string path, string type, string creator, string source)
         {
             var runner = DatabaseManager.GetUser(Context.User.Id);
             if (runner.BotPermissions < BotPermissionLevel.BotAdministrator)

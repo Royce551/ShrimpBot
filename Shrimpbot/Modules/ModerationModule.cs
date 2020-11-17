@@ -5,7 +5,6 @@ using Discord.WebSocket;
 using Shrimpbot.Services;
 using Shrimpbot.Services.Configuration;
 using Shrimpbot.Services.Database;
-using Shrimpbot.Utilities;
 using System;
 using System.Threading.Tasks;
 

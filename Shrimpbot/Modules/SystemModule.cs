@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace Shrimpbot.Modules
@@ -29,7 +28,7 @@ namespace Shrimpbot.Modules
             watch.Start();
             var message = await ReplyAsync("pinging");
             watch.Stop();
-            await message.ModifyAsync(msg => msg.Content = 
+            await message.ModifyAsync(msg => msg.Content =
             $"Pong! I'm here!\n" +
             $"Message latency: {watch.ElapsedMilliseconds}ms\n" +
             $"Gateway: {Client.Latency}ms");
@@ -68,7 +67,7 @@ namespace Shrimpbot.Modules
                     summary += $"__{command.Name}__ - {command.Summary ?? "No description"}\n";
                 }
                 embedBuilder.AddField(module.Name, summary, inline: true);
-                await ReplyAsync(":information_source: **Shrimpbot Help**", embed:embedBuilder.Build());
+                await ReplyAsync(":information_source: **Shrimpbot Help**", embed: embedBuilder.Build());
             }
         }
         [Command("about")]
@@ -79,11 +78,11 @@ namespace Shrimpbot.Modules
             embedBuilder.ImageUrl = "https://cdn.discordapp.com/attachments/556283742008901645/600468110109048837/Banner.png";
             embedBuilder.AddField($"{Config.Name} {Config.Version}", "by Squid Grill (and open source contributors)");
             embedBuilder.AddField("Hosting",
-                $".NET: {System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription}\n" +
-                $"Discord.NET Version: {DiscordConfig.Version}\n" +
-                $"OS: {Environment.OSVersion.VersionString}"
+                $"{System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription}\n" +
+                $"Discord.NET {DiscordConfig.Version}\n" +
+                $"{Environment.OSVersion.VersionString}"
                 );
-            embedBuilder.AddField("Links", 
+            embedBuilder.AddField("Links",
                 "Official ShrimpBot Discord Server: https://discord.gg/fuJ6J4s\n" +
                 "GitHub Repository: https://github.com/Royce551/ShrimpBot");
             embedBuilder.WithFooter("Thank you for using ShrimpBot! ❤");
@@ -104,9 +103,9 @@ namespace Shrimpbot.Modules
             var uptime = DateTime.Now - RuntimeInformation.StartupTime;
             var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
             embedBuilder.AddField($"{Config.Name} stats",
-                $"Uptime: {uptime}\n" + 
+                $"Uptime: {uptime}\n" +
                 $"Commands handled: {RuntimeInformation.CommandsHandled}");
-            await ReplyAsync(embed:embedBuilder.Build());
+            await ReplyAsync(embed: embedBuilder.Build());
         }
     }
 }

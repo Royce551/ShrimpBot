@@ -1,15 +1,12 @@
-﻿using Discord;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using Newtonsoft.Json;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Net.Http;
+﻿using Discord.Commands;
 using Newtonsoft.Json.Linq;
 using Shrimpbot.Services.Database;
 using Shrimpbot.Utilities;
-using Discord.Commands;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
+using System.Text;
 
 namespace Shrimpbot.Services
 {
@@ -140,7 +137,7 @@ namespace Shrimpbot.Services
             if (FileSource == Services.ImageSource.Online) // Involves URLs
             {
 
-                
+
                 if (!string.IsNullOrEmpty(Creator)) builder.AppendLine($"Creator: {Creator}");
                 if (!string.IsNullOrEmpty(Uploader)) builder.AppendLine($"Uploaded by {Uploader}");
                 builder.AppendLine($"Source: {ImageSource}");

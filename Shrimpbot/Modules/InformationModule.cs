@@ -5,10 +5,6 @@ using Discord.WebSocket;
 using Shrimpbot.Services.Configuration;
 using Shrimpbot.Services.Database;
 using Shrimpbot.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Shrimpbot.Modules
@@ -33,7 +29,7 @@ namespace Shrimpbot.Modules
             var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
             embedBuilder.WithAuthor(user);
             embedBuilder.WithDescription(user.Status.ToString());
-            embedBuilder.AddField("General", 
+            embedBuilder.AddField("General",
                 $"**User ID**: {user.Id}\n" +
                 $"**Created**: {user.CreatedAt}\n" +
                 $"**Human?**: {!user.IsBot}");
@@ -44,7 +40,7 @@ namespace Shrimpbot.Modules
                 $"**Money**: {Config.CurrencySymbol}{databaseUser.Money}\n" +
                 $"**Cuteness**: {databaseUser.Cuteness}\n" +
                 $"**Bot Permission Level**: {databaseUser.BotPermissions}\n");
-            await ReplyAsync(embed:embedBuilder.Build());
+            await ReplyAsync(embed: embedBuilder.Build());
         }
         [Command("sinfo")]
         [Summary("Gets information about a server.")]

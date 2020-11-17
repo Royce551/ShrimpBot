@@ -3,7 +3,6 @@ using LiteDB;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace Shrimpbot.Services.Database
 {
@@ -16,7 +15,7 @@ namespace Shrimpbot.Services.Database
         /// The directory where the database is located.
         /// </summary>
         public static string DatabaseDirectory;
-        private static readonly LiteDatabase Database; 
+        private static readonly LiteDatabase Database;
         static DatabaseManager()
         {
             DatabaseDirectory = Path.Combine(Directory.GetCurrentDirectory(),
@@ -61,7 +60,7 @@ namespace Shrimpbot.Services.Database
         {
             var z = new List<DatabaseUser>();
             if (Database.GetCollection<DatabaseUser>("Users").Query().ToList().Count == 0)
-            Console.WriteLine(z.Count);
+                Console.WriteLine(z.Count);
             z = Database.GetCollection<DatabaseUser>("Users").Query().ToList();
             return z;
         }
@@ -109,7 +108,7 @@ namespace Shrimpbot.Services.Database
         /// Gets a list of images of the selected type.
         /// </summary>
         /// <param name="type">The type of images to get.</param>
-        public static List<DatabaseImage> GetImages(ImageType type) => 
+        public static List<DatabaseImage> GetImages(ImageType type) =>
             Database.GetCollection<DatabaseImage>("Images").Query()
             .Where(x => x.Type == type)
             .ToList();

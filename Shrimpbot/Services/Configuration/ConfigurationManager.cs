@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
 using System.IO;
-using System.Text;
-using Newtonsoft.Json;
 
 namespace Shrimpbot.Services.Configuration
 {
@@ -33,5 +30,5 @@ namespace Shrimpbot.Services.Configuration
             }
         }
     }
-    
+
 }
