@@ -136,8 +136,6 @@ namespace Shrimpbot.Services
             var builder = new StringBuilder();
             if (FileSource == Services.ImageSource.Online) // Involves URLs
             {
-
-
                 if (!string.IsNullOrEmpty(Creator)) builder.AppendLine($"Creator: {Creator}");
                 if (!string.IsNullOrEmpty(Uploader)) builder.AppendLine($"Uploaded by {Uploader}");
                 builder.AppendLine($"Source: {ImageSource}");

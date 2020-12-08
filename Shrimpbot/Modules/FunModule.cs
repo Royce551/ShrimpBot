@@ -5,6 +5,7 @@ using Discord.WebSocket;
 using Shrimpbot.Services;
 using Shrimpbot.Services.Configuration;
 using Shrimpbot.Services.Database;
+using Shrimpbot.Services.Fun;
 using Shrimpbot.Utilities;
 using System;
 using System.Threading.Tasks;
@@ -257,6 +258,21 @@ namespace Shrimpbot.Modules
                     return;
                 }
                 else await ReplyAsync("Looks like you made a mistake.");
+            }
+        }
+        [Command("test", RunMode = RunMode.Async)]
+        public async Task TicTacToe()
+        {
+            var board = new TicTacToeBoard();
+            while (true)
+            {
+                await ReplyAsync("yes", embed: board.GetFormattedBoard(Context.User).Build());
+                var response = await NextMessageAsync(timeout: new TimeSpan(0, 0, 0, 0, -1));
+                string responseText = response.Content;
+                if (responseText == "quit") return;
+                else if (responseText == "a") board.Set(TicTacToeBoardPosition.TopLeft, TicTacToeMark.X);
+                else if (responseText == "a") board.Set(TicTacToeBoardPosition.Middle, TicTacToeMark.O);
+                else if (responseText == "a") board.Set(TicTacToeBoardPosition.BottomRight, TicTacToeMark.X);
             }
         }
         [Command("cute")]
