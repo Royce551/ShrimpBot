@@ -29,7 +29,44 @@ namespace Shrimpbot
                 switch (response)
                 {
                     case "quit":
-                        
+                        database.Database.Dispose();
+                        LoggingService.Log(LogSeverity.Info, $"{config.Name} is shutting down.");
+                        return;
+                    case "setbotadmin":
+                        while (true)
+                        {
+                            Console.WriteLine("Type the user ID of the user you want to set as admin.");
+                            if (ulong.TryParse(Console.ReadLine(), out var result))
+                            {
+                                var user = database.GetUser(result);
+                                user.BotPermissions = BotPermissionLevel.BotAdministrator;
+                                database.WriteUser(user);
+                                Console.WriteLine("Permissions set!");
+                                break;
+                            }
+                            else Console.WriteLine("idoit");
+                        }
+                        break;
+                    case "setbotowner":
+                        while (true)
+                        {
+                            Console.WriteLine("Type the user ID of the user you want to set as owner.");
+                            if (ulong.TryParse(Console.ReadLine(), out var result))
+                            {
+                                var user = database.GetUser(result);
+                                user.BotPermissions = BotPermissionLevel.Owner;
+                                database.WriteUser(user);
+                                Console.WriteLine("Permissions set!");
+                                break;
+                            }
+                            else Console.WriteLine("idoit");
+                        }
+                        break;
+                    case "stats":
+                        Console.WriteLine($"Commands handled: {runtimeInformation.CommandsHandled}, Uptime - {DateTime.Now - runtimeInformation.StartupTime}");
+                        break;
+                    default:
+                        Console.WriteLine("That's not a valid command. Valid commands are quit, setbotadmin, setbotowner, stats.");
                         break;
                 }
             }

@@ -292,7 +292,7 @@ namespace Shrimpbot.Modules
                 }
             }
 
-            CuteService.GetImage(imageSource, imageType).SendEmbed(Context);
+            CuteService.GetImage(Database, imageSource, imageType).SendEmbed(Context);
         }
 
     }

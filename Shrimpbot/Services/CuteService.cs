@@ -27,12 +27,12 @@ namespace Shrimpbot.Services
         /// <param name="source">The source to get the image from.</param>
         /// <param name="type">The type of image to search for</param>
         /// <returns>A <see cref="CuteImage"/> representing the returned image.</returns>
-        public static CuteImage GetImage(ImageSource source = ImageSource.Curated, ImageType type = ImageType.All) => source switch
+        public static CuteImage GetImage(DatabaseManager manager, ImageSource source = ImageSource.Curated, ImageType type = ImageType.All) => source switch
         {
-            ImageSource.Curated => GetImageFromImageFolder(type),
+            ImageSource.Curated => GetImageFromImageFolder(type, manager),
             ImageSource.Online => GetImageFromOnline(type),
             ImageSource.LegacyImages => GetImageFromLegacyImageFolder(type),
-            _ => GetImageFromImageFolder(type)
+            _ => GetImageFromImageFolder(type, manager)
         };
         /// <summary>
         /// Gets a random image from an image board.
@@ -61,12 +61,12 @@ namespace Shrimpbot.Services
         /// </summary>
         /// <param name="type">The type of image to search for</param>
         /// <returns>A <see cref="CuteImage"/> representing the returned image.</returns>
-        public static CuteImage GetImageFromImageFolder(ImageType type)
+        public static CuteImage GetImageFromImageFolder(ImageType type, DatabaseManager manager)
         {
             var imagePaths = new List<DatabaseImage>();
 
-            if (type == ImageType.All || type == ImageType.Anime) imagePaths.AddRange(DatabaseManager.GetImages(ImageType.Anime));
-            if (type == ImageType.All || type == ImageType.Anime || type == ImageType.Catgirls) imagePaths.AddRange(DatabaseManager.GetImages(ImageType.Catgirls));
+            if (type == ImageType.All || type == ImageType.Anime) imagePaths.AddRange(manager.GetImages(ImageType.Anime));
+            if (type == ImageType.All || type == ImageType.Anime || type == ImageType.Catgirls) imagePaths.AddRange(manager.GetImages(ImageType.Catgirls));
 
             int number = Rng.Next(0, imagePaths.Count - 1);
             var image = imagePaths[number].Image;
