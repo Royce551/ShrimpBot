@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace Shrimpbot.Services.Fun
 {
@@ -99,12 +102,14 @@ namespace Shrimpbot.Services.Fun
         }
         public static string GetRandomParagraph()
         {
-            var paragraphs = new string[]
+            if (!Directory.Exists("Paragraphs")) Directory.CreateDirectory("Paragraphs");
+            var textFiles = Directory.EnumerateFiles("Paragraphs", "*.txt").ToList();
+            var paragraphs = new List<string>();
+            foreach (var textFile in textFiles)
             {
-                "test paragraph test paragraph lols",
-
-            };
-            return paragraphs[rng.Next(0, paragraphs.Length - 1)];
+                paragraphs.Add(File.ReadAllText(textFile));
+            }
+            return paragraphs[rng.Next(0, paragraphs.Count - 1)];
         }
         public static ShrimpBattle CreateBattle(string userName)
         {

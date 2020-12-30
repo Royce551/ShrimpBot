@@ -14,9 +14,9 @@ namespace Shrimpbot.Services.Database
         /// <summary>
         /// The directory where the database is located.
         /// </summary>
-        public static string DatabaseDirectory;
-        private static readonly LiteDatabase Database;
-        static DatabaseManager()
+        public string DatabaseDirectory;
+        public LiteDatabase Database;
+        public DatabaseManager()
         {
             DatabaseDirectory = Path.Combine(Directory.GetCurrentDirectory(),
                                                 "Database"
@@ -28,7 +28,7 @@ namespace Shrimpbot.Services.Database
         /// Gets a <see cref="DatabaseUser"/> from the database. Creates a user if they aren't already in the database.
         /// </summary>
         /// <param name="id">The Discord user ID of the user.</param>
-        public static DatabaseUser GetUser(ulong id)
+        public DatabaseUser GetUser(ulong id)
         {
             DatabaseUser user;
 
@@ -45,7 +45,7 @@ namespace Shrimpbot.Services.Database
         /// Writes a <see cref="DatabaseUser"/> to the database. Creates a user if they aren't already in the database.
         /// </summary>
         /// <param name="id">The Discord user ID of the user.</param>
-        public static void WriteUser(DatabaseUser user)
+        public void WriteUser(DatabaseUser user)
         {
             if (!Database.GetCollection<DatabaseUser>("Users").Update(user))
             {
@@ -56,7 +56,7 @@ namespace Shrimpbot.Services.Database
         /// Gets a list of all users in the database.
         /// </summary>
         /// <returns></returns>
-        public static List<DatabaseUser> GetAllUsers()
+        public List<DatabaseUser> GetAllUsers()
         {
             var z = new List<DatabaseUser>();
             if (Database.GetCollection<DatabaseUser>("Users").Query().ToList().Count == 0)
@@ -68,7 +68,7 @@ namespace Shrimpbot.Services.Database
         /// Gets a <see cref="DatabaseServer"/> from the database. Creates a server if they aren't already in the database.
         /// </summary>
         /// <param name="id">The Discord server ID of the server.</param>
-        public static DatabaseServer GetServer(ulong id)
+        public DatabaseServer GetServer(ulong id)
         {
             DatabaseServer server;
 
@@ -85,7 +85,7 @@ namespace Shrimpbot.Services.Database
         /// Writes a <see cref="DatabaseServer"/> to the database. Creates a server if they aren't already in the database.
         /// </summary>
         /// <param name="id">The Discord server ID of the server.</param>
-        public static void WriteServer(DatabaseServer server)
+        public void WriteServer(DatabaseServer server)
         {
             if (!Database.GetCollection<DatabaseServer>("Servers").Update(server))
             {
@@ -96,7 +96,7 @@ namespace Shrimpbot.Services.Database
         /// Gets a list of all servers in the database.
         /// </summary>
         /// <returns></returns>
-        public static List<DatabaseServer> GetAllServers()
+        public List<DatabaseServer> GetAllServers()
         {
             var z = new List<DatabaseServer>();
             if (Database.GetCollection<DatabaseServer>("Servers").Query().ToList().Count == 0)
@@ -108,7 +108,7 @@ namespace Shrimpbot.Services.Database
         /// Gets a list of images of the selected type.
         /// </summary>
         /// <param name="type">The type of images to get.</param>
-        public static List<DatabaseImage> GetImages(ImageType type) =>
+        public  List<DatabaseImage> GetImages(ImageType type) =>
             Database.GetCollection<DatabaseImage>("Images").Query()
             .Where(x => x.Type == type)
             .ToList();
@@ -118,7 +118,7 @@ namespace Shrimpbot.Services.Database
         /// <param name="path">The path of the image. Ideally this would be a relative path.</param>
         /// <param name="type">The type of the image</param>
         /// <param name="image">The <see cref="CuteImage"/> that represents this image.</param>
-        public static void CreateImage(string path, ImageType type, CuteImage image) =>
+        public void CreateImage(string path, ImageType type, CuteImage image) =>
             Database.GetCollection<DatabaseImage>("Images").Insert(new DatabaseImage
             {
                 DatabaseImageId = path,
@@ -128,9 +128,9 @@ namespace Shrimpbot.Services.Database
         /// <summary>
         /// Updates a <see cref="DatabaseImage"/>.
         /// </summary>
-        public static void UpdateImage(DatabaseImage image) =>
+        public void UpdateImage(DatabaseImage image) =>
             Database.GetCollection<DatabaseImage>("Images").Update(image);
 
-        public static void ExecuteSql(string sql) => Database.Execute(sql);
+        public void ExecuteSql(string sql) => Database.Execute(sql);
     }
 }

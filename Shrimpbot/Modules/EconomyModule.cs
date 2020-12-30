@@ -21,11 +21,12 @@ namespace Shrimpbot.Modules
         public DiscordSocketClient Client { get; set; }
         public CommandService CommandService { get; set; }
         public ConfigurationFile Config { get; set; }
+        public DatabaseManager Database { get; set; }
         [Command("balance")]
         [Summary("Gets your current balance")]
         public async Task Balance()
         {
-            await ReplyAsync($"You have {DatabaseManager.GetUser(Context.User.Id).Money} {string.Format("{0:n}", Config.Currency)}.");
+            await ReplyAsync($"You have {Database.GetUser(Context.User.Id).Money} {string.Format("{0:n}", Config.Currency)}.");
         }
         [Command("pay")]
         [Summary("Gives someone some money")]
@@ -36,8 +37,8 @@ namespace Shrimpbot.Modules
                 await ReplyAsync("You can't pay someone a negative amount.");
                 return;
             }
-            var runner = DatabaseManager.GetUser(Context.User.Id);
-            var reciever = DatabaseManager.GetUser(user.Id);
+            var runner = Database.GetUser(Context.User.Id);
+            var reciever = Database.GetUser(user.Id);
 
             if (amount > runner.Money)
             {
@@ -54,15 +55,15 @@ namespace Shrimpbot.Modules
                 runner.Money -= amount;
                 reciever.Money += amount;
                 await ReplyAsync($"Gave {Config.CurrencySymbol}{amount} to {user.Username}, leaving you with {Config.CurrencySymbol}{string.Format("{0:n}", runner.Money)}");
-                DatabaseManager.WriteUser(runner);
-                DatabaseManager.WriteUser(reciever);
+                Database.WriteUser(runner);
+                Database.WriteUser(reciever);
             }
         }
         [Command("gamble")]
         [Summary("Throws your money away in the hopes of doubling your wealth")]
         public async Task Gamble(decimal bet)
         {
-            var runner = DatabaseManager.GetUser(Context.User.Id);
+            var runner = Database.GetUser(Context.User.Id);
             var runnergamble = rng.Next(1, 21);
             var shrimpgamble = rng.Next(1, 21);
             if (bet > runner.Money)
@@ -92,13 +93,13 @@ namespace Shrimpbot.Modules
                 runner.Money += bet;
                 await ReplyAsync($"You - {runnergamble} | {Config.Name} - {shrimpgamble}\n**JACKPOT!!** Your bet got quadrupled, leaving you with {string.Format("{0:n}", runner.Money)} {Config.Currency}. The gods smile upon you.");
             }
-            DatabaseManager.WriteUser(runner);
+            Database.WriteUser(runner);
         }
         [Command("work")]
         [Summary("Work for Squid Grill to get some money.")]
         public async Task Daily()
         {
-            var runner = DatabaseManager.GetUser(Context.User.Id);
+            var runner = Database.GetUser(Context.User.Id);
             if (DateTime.Now - runner.DailyLastClaimed >= new TimeSpan(1, 0, 0, 0))
             {
                 var responses = new string[]
@@ -120,14 +121,14 @@ namespace Shrimpbot.Modules
                 await ReplyAsync($"You already worked for Squid today. Try again in {Math.Round(((runner.DailyLastClaimed + new TimeSpan(1, 0, 0, 0)) - DateTime.Now).TotalHours)} hours.");
                 return;
             }
-            DatabaseManager.WriteUser(runner);
+            Database.WriteUser(runner);
         }
         [Command("leaderboard")]
         [Summary("See how your wealth stacks up to others.")]
         public async Task Leaderboard()
         {
             var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
-            List<DatabaseUser> users = DatabaseManager.GetAllUsers();
+            List<DatabaseUser> users = Database.GetAllUsers();
             if (users.Count >= 10) users = users.GetRange(0, 10).OrderByDescending(o => o.Money).ToList();
             else users = users.OrderByDescending(o => o.Money).ToList();
             var stringBuilder = new StringBuilder();

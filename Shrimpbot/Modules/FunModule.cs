@@ -19,6 +19,7 @@ namespace Shrimpbot.Modules
         public DiscordSocketClient Client { get; set; }
         public CommandService CommandService { get; set; }
         public ConfigurationFile Config { get; set; }
+        public DatabaseManager Database { get; set; }
 
         [Command("8ball", ignoreExtraArgs: true)]
         [Summary("It's an 8 ball...")]
@@ -31,11 +32,11 @@ namespace Shrimpbot.Modules
         public async Task Cuteness(IUser runner = null)
         {
             DatabaseUser user;
-            if (runner is null) user = DatabaseManager.GetUser(Context.User.Id); else user = DatabaseManager.GetUser(runner.Id);
+            if (runner is null) user = Database.GetUser(Context.User.Id); else user = Database.GetUser(runner.Id);
             if (user.Cuteness == -1)
             {
                 user.Cuteness = new Random().Next(1, 101);
-                DatabaseManager.WriteUser(user);
+                Database.WriteUser(user);
             }
             if (runner is null) await ReplyAsync($":two_hearts: Your cuteness level is {user.Cuteness}/100.");
             else await ReplyAsync($":two_hearts: {runner.Username}'s cuteness is {user.Cuteness}/100.");
@@ -58,7 +59,7 @@ namespace Shrimpbot.Modules
                     await ReplyAsync("That's not a valid max number!");
                     return;
                 }
-                var runner = DatabaseManager.GetUser(Context.User.Id);
+                var runner = Database.GetUser(Context.User.Id);
                 int number = new Random().Next(1, maxNumber + 1);
                 int maxguesses = (int)Math.Floor(Math.Log(maxNumber, 2)); // Ensures 1/3 chance of winning in most cases
                 int remainingAttempts = maxguesses - 1;
@@ -90,7 +91,7 @@ namespace Shrimpbot.Modules
                 double payMultiplier = maxNumber / Math.Pow(2, maxguesses); // Awards double for when the max number isn't a power of 2 (highest chances of winning)
                 await ReplyAsync($":tada: You were correct! Great job! You got {Math.Round(maxguesses * 10 * payMultiplier)} {Config.Currency} for your performance.");
                 runner.Money += (decimal)Math.Round(maxguesses * 10 * payMultiplier);
-                DatabaseManager.WriteUser(runner);
+                Database.WriteUser(runner);
             }
             catch (Exception e)
             {
@@ -133,9 +134,9 @@ namespace Shrimpbot.Modules
                     $"**{battle.Enemy.Name}** deals **{turnResults.eneResults.DamageDealt} damage** and uses {turnResults.eneResults.ManaUsed} of their mana.");
             }
             await ReplyAsync($":tada: You win! You got 50 {Config.Currency} for your performance.");
-            var user = DatabaseManager.GetUser(Context.User.Id);
+            var user = Database.GetUser(Context.User.Id);
             user.Money += 50;
-            DatabaseManager.WriteUser(user);
+            Database.WriteUser(user);
         }
         [Command("battlemultiplayer", RunMode = RunMode.Async)]
         [Summary("Battle your friends")]
@@ -283,7 +284,7 @@ namespace Shrimpbot.Modules
             var imageSource = CuteService.ParseImageSource(source);
             if (Context.Guild != null)
             {
-                var server = DatabaseManager.GetServer(Context.Guild.Id);
+                var server = Database.GetServer(Context.Guild.Id);
                 if (imageSource == ImageSource.Online && !server.AllowsPotentialNSFW)
                 {
                     await ReplyAsync(MessagingUtils.GetServerNoPermissionsString());

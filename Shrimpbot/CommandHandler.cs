@@ -5,6 +5,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Shrimpbot.Services;
 using Shrimpbot.Services.Configuration;
+using Shrimpbot.Services.Database;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -15,13 +16,15 @@ namespace Shrimpbot
     {
         private readonly DiscordSocketClient client;
         private readonly CommandService commands;
+        private readonly DatabaseManager database;
         private readonly IServiceProvider services;
         private readonly ConfigurationFile config;
         private readonly BotRuntimeInformation runtimeInformation;
 
-        public CommandHandler(DiscordSocketClient client, CommandService commands, ConfigurationFile config, BotRuntimeInformation runtimeInformation)
+        public CommandHandler(DiscordSocketClient client, CommandService commands, ConfigurationFile config, DatabaseManager database, BotRuntimeInformation runtimeInformation)
         {
             this.commands = commands;
+            this.database = database;
             this.client = client;
             this.config = config;
             this.runtimeInformation = runtimeInformation;
@@ -30,6 +33,7 @@ namespace Shrimpbot
                 .AddSingleton(config)
                 .AddSingleton(client)
                 .AddSingleton(runtimeInformation)
+                .AddSingleton(database)
                 .AddSingleton<InteractiveService>()
                 .BuildServiceProvider();
         }

@@ -17,13 +17,14 @@ namespace Shrimpbot.Modules
         public DiscordSocketClient Client { get; set; }
         public CommandService CommandService { get; set; }
         public ConfigurationFile Config { get; set; }
+        public DatabaseManager Database { get; set; }
 
         [Command("manageserver", RunMode = RunMode.Async), RequireUserPermission(GuildPermission.ManageGuild, ErrorMessage = "You don't have permission to run this command.")]
         [Summary("Configures a server.")]
         public async Task ManageServer()
         {
-            var server = DatabaseManager.GetServer(Context.Guild.Id);
-            var navigator = ManagementService.CreateBotModerationNavigator(server);
+            var server = Database.GetServer(Context.Guild.Id);
+            var navigator = ManagementService.CreateBotModerationNavigator(server, Context.Guild);
 
             await ReplyAsync(embed: navigator.GetHomePage(Context).Build());
             while (true)
@@ -52,7 +53,7 @@ namespace Shrimpbot.Modules
                     }
                     if (navigator.Set(pageResponseString.TrimStart("set".ToCharArray()).TrimStart()))
                     {
-                        DatabaseManager.WriteServer(navigator.Server);
+                        Database.WriteServer(navigator.Server);
                         await ReplyAsync(embed: navigator.GetHomePage(Context).Build());
                         break;
                     }
@@ -68,7 +69,7 @@ namespace Shrimpbot.Modules
         [Summary("Configures settings for yourself.")]
         public async Task UserSettings()
         {
-            var user = DatabaseManager.GetUser(Context.User.Id);
+            var user = Database.GetUser(Context.User.Id);
             var navigator = ManagementService.CreateUserSettingsNavigator(user);
 
             await ReplyAsync(embed: navigator.GetHomePage(Context).Build());
@@ -96,7 +97,7 @@ namespace Shrimpbot.Modules
                     }
                     if (navigator.Set(pageResponseString.TrimStart("set".ToCharArray()).TrimStart()))
                     {
-                        DatabaseManager.WriteUser(navigator.User);
+                        Database.WriteUser(navigator.User);
                         await ReplyAsync(embed: navigator.GetHomePage(Context).Build());
                         break;
                     }

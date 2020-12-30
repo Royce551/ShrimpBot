@@ -16,13 +16,14 @@ namespace Shrimpbot.Modules
         public DiscordSocketClient Client { get; set; }
         public CommandService CommandService { get; set; }
         public ConfigurationFile Config { get; set; }
+        public DatabaseManager Database { get; set; }
 
         [Command("uinfo")]
         [Summary("Gets information about a user.")]
         public async Task UserInfo(IUser runner = null)
         {
             DatabaseUser databaseUser;
-            if (runner is null) databaseUser = DatabaseManager.GetUser(Context.User.Id); else databaseUser = DatabaseManager.GetUser(runner.Id);
+            if (runner is null) databaseUser = Database.GetUser(Context.User.Id); else databaseUser = Database.GetUser(runner.Id);
             var user = Client.GetUser(databaseUser.Id);
             var guildUser = Context.Guild?.GetUser(databaseUser.Id);
 

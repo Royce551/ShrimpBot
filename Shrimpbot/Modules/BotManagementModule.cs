@@ -16,11 +16,12 @@ namespace Shrimpbot.Modules
         public DiscordSocketClient Client { get; set; }
         public CommandService CommandService { get; set; }
         public ConfigurationFile Config { get; set; }
+        public DatabaseManager Database { get; set; }
 
         [Command("addimagetodatabase")]
         public async Task AddImage(string path, string type, string creator, string source)
         {
-            var runner = DatabaseManager.GetUser(Context.User.Id);
+            var runner = Database.GetUser(Context.User.Id);
             if (runner.BotPermissions < BotPermissionLevel.BotAdministrator)
             {
                 await ReplyAsync(MessagingUtils.GetNoPermissionsString());
@@ -35,18 +36,18 @@ namespace Shrimpbot.Modules
                 "all" => ImageType.All,
                 _ => ImageType.All,
             };
-            DatabaseManager.CreateImage(path, imageType, new CuteImage { Creator = creator, Path = path, ImageSource = source });
+            Database.CreateImage(path, imageType, new CuteImage { Creator = creator, Path = path, ImageSource = source });
         }
         [Command("databaseevalsql")]
         public async Task DatabaseEvaluateSql(string sql)
         {
-            var runner = DatabaseManager.GetUser(Context.User.Id);
+            var runner = Database.GetUser(Context.User.Id);
             if (runner.BotPermissions < BotPermissionLevel.BotAdministrator)
             {
                 await ReplyAsync(MessagingUtils.GetNoPermissionsString());
                 return;
             }
-            DatabaseManager.ExecuteSql(sql);
+            Database.ExecuteSql(sql);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using Shrimpbot.Services.Database;
 using Shrimpbot.Utilities;
 using System;
@@ -13,7 +14,7 @@ namespace Shrimpbot.Services
     public class ManagementService
     {
         public static UserSettingsNavigator CreateUserSettingsNavigator(DatabaseUser user) => new UserSettingsNavigator { User = user };
-        public static BotModerationNavigator CreateBotModerationNavigator(DatabaseServer server) => new BotModerationNavigator { Server = server };
+        public static BotModerationNavigator CreateBotModerationNavigator(DatabaseServer server, SocketGuild discordServer) => new BotModerationNavigator { Server = server, DiscordServer = discordServer };
     }
     public abstract class Navigator
     {
@@ -36,7 +37,7 @@ namespace Shrimpbot.Services
     }
     public class UserSettingsNavigator : Navigator
     {
-        public DatabaseUser User { get; set; }
+        public DatabaseUser User { get; init; }
         public override EmbedBuilder GetHomePage(SocketCommandContext context)
         {
             var initialPromptEmbedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
@@ -64,7 +65,8 @@ namespace Shrimpbot.Services
     }
     public class BotModerationNavigator : Navigator
     {
-        public DatabaseServer Server { get; set; }
+        public DatabaseServer Server { get; init; }
+        public SocketGuild DiscordServer {get; init;}
         public override EmbedBuilder GetHomePage(SocketCommandContext context)
         {
             var initialPromptEmbedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
@@ -111,9 +113,17 @@ namespace Shrimpbot.Services
                     PropertyDescription =
                     $"The channel where moderation events are logged.\n" +
                     $"Currently set to {Server.LoggingChannel}",
-                    Prompt = "set [The ID of the channel to set]",
+                    Prompt = "set [The name or ID of the channel to set]",
                     Set = (string arg) =>
                     {
+                        foreach (var server in DiscordServer.Channels)
+                        {
+                            if (server.Name == arg)
+                            {
+                                Server.LoggingChannel = server.Id;
+                                return true;
+                            }
+                        }
                         if (ulong.TryParse(arg, out ulong result))
                         {
                             Server.LoggingChannel = result;
@@ -131,6 +141,14 @@ namespace Shrimpbot.Services
                     Prompt = "set [The ID of the channel to set]",
                     Set = (string arg) =>
                     {
+                        foreach (var server in DiscordServer.Channels)
+                        {
+                            if (server.Name == arg)
+                            {
+                                Server.SystemChannel = server.Id;
+                                return true;
+                            }
+                        }
                         if (ulong.TryParse(arg, out ulong result))
                         {
                             Server.SystemChannel = result;
