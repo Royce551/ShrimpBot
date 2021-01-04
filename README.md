@@ -10,7 +10,7 @@ banner goes here eventually
 ---
 **Running ShrimpBot yourself**
 - Clone and build ShrimpBot
-- Attempt to run ShrimpBot. It will fail.
+- Attempt to run ShrimpBot. It will crash.
 - Go to the newly created Configuration folder and edit the config file as you see fit. Keep the token a secret!
 - Attempt to run ShrimpBot again, assuming you put in a valid token, it should run!
 - You may also want to set yourself as the bot owner. Type `setbotowner`, and then enter your user ID.
