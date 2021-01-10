@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Shrimpbot.Modules
@@ -76,7 +77,7 @@ namespace Shrimpbot.Modules
         {
             var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
             embedBuilder.ImageUrl = "https://cdn.discordapp.com/attachments/556283742008901645/600468110109048837/Banner.png";
-            embedBuilder.AddField($"{Config.Name} {Config.Version}", "by Squid Grill (and open source contributors)");
+            embedBuilder.AddField($"{Config.Name} {Assembly.GetEntryAssembly().GetName().Version}", "by Squid Grill (and open source contributors)");
             embedBuilder.AddField("Hosting",
                 $"{System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription}\n" +
                 $"Discord.NET {DiscordConfig.Version}\n" +
