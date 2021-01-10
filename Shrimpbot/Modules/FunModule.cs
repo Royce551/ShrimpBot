@@ -242,7 +242,12 @@ namespace Shrimpbot.Modules
             var paragraph = FunService.GetRandomParagraph();
             var wordCount = paragraph.Length / 5; // words in typing are 5 letters, regardless of the actual words
             var startTime = DateTime.Now;
-            await ReplyAsync($"You have idk minutes to type this thing! glhf\n\n{paragraph}");
+            var builder = MessagingUtils.GetShrimpbotEmbedBuilder()
+                .WithAuthor(Context.User)
+                .WithTitle($"You have (placeholder) minutes to type this thing! glhf")
+                .WithDescription(paragraph)
+                .WithFooter($"quit - Exit");
+            await ReplyAsync(embed: builder.Build());
             while (true)
             {
                 var response = await NextMessageAsync(timeout: new TimeSpan(0, 0, 0, 0, -1));
@@ -256,6 +261,11 @@ namespace Shrimpbot.Modules
                         continue;
                     }
                     await ReplyAsync($"Congrats! You took {timeTaken:mm\\:ss} and typed {Math.Round(wpm)} wpm.");
+                    return;
+                }
+                else if (response.Content == "quit")
+                {
+                    await ReplyAsync("You quit.");
                     return;
                 }
                 else await ReplyAsync("Looks like you made a mistake.");
