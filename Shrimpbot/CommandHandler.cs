@@ -7,6 +7,7 @@ using Shrimpbot.Services;
 using Shrimpbot.Services.Configuration;
 using Shrimpbot.Services.Database;
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -63,6 +64,9 @@ namespace Shrimpbot
             runtimeInformation.CommandsHandled++;
             if (!result.IsSuccess)
                 await context.Channel.SendMessageAsync($"Oopsies! {result.ErrorReason}");
+#if DEBUG
+            await context.Channel.SendMessageAsync("This is the blueprint bot; whatever you do here may not be saved forever.");
+#endif
         }
     }
 }
