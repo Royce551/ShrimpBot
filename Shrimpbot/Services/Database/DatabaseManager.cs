@@ -35,7 +35,7 @@ namespace Shrimpbot.Services.Database
             user = Database.GetCollection<DatabaseUser>("Users").FindOne(x => id == x.Id);
             if (user is null)
             {
-                LoggingService.Log(LogSeverity.Verbose, "Created a user!");
+                LoggingService.LogToTerminal(LogSeverity.Verbose, "Created a user!");
                 Database.GetCollection<DatabaseUser>("Users").Insert(new DatabaseUser { Id = id });
                 user = Database.GetCollection<DatabaseUser>("Users").FindOne(x => id == x.Id);
             }
@@ -75,7 +75,7 @@ namespace Shrimpbot.Services.Database
             server = Database.GetCollection<DatabaseServer>("Servers").FindOne(x => id == x.Id);
             if (server is null)
             {
-                LoggingService.Log(LogSeverity.Verbose, "Created a server!");
+                LoggingService.LogToTerminal(LogSeverity.Verbose, "Created a server!");
                 Database.GetCollection<DatabaseServer>("Servers").Insert(new DatabaseServer { Id = id });
                 server = Database.GetCollection<DatabaseServer>("Servers").FindOne(x => id == x.Id);
             }

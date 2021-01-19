@@ -1,11 +1,16 @@
 ﻿using Discord;
+using Discord.WebSocket;
+using Shrimpbot.Services;
+using Shrimpbot.Services.Database;
+using Shrimpbot.Utilities;
 using System;
 
 namespace Shrimpbot.Services
 {
     public class LoggingService
     {
-        public static void Log(LogSeverity severity, string message)
+        // TODO: dunno what to do with this
+        public static void LogToTerminal(LogSeverity severity, string message)
         {
             Console.ForegroundColor = severity switch
             {
@@ -16,5 +21,6 @@ namespace Shrimpbot.Services
             Console.WriteLine($"[{severity} {DateTime.Now:T}] {message}");
             Console.ResetColor();
         }
+
     }
 }

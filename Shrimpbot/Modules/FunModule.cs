@@ -95,7 +95,7 @@ namespace Shrimpbot.Modules
             }
             catch (Exception e)
             {
-                LoggingService.Log(LogSeverity.Critical, e.Message + "\n" + e.StackTrace);
+                LoggingService.LogToTerminal(LogSeverity.Critical, e.Message + "\n" + e.StackTrace);
                 await ReplyAsync("Fucky wucky" + e.Message + "\n" + e.StackTrace);
             }
         }

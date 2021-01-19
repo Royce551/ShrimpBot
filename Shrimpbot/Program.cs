@@ -30,7 +30,7 @@ namespace Shrimpbot
                 {
                     case "quit":
                         database.Database.Dispose();
-                        LoggingService.Log(LogSeverity.Info, $"{config.Name} is shutting down.");
+                        LoggingService.LogToTerminal(LogSeverity.Info, $"{config.Name} is shutting down.");
                         return;
                     case "setbotadmin":
                         while (true)
@@ -74,7 +74,7 @@ namespace Shrimpbot
 
         static Task Client_Log(LogMessage msg)
         {
-            LoggingService.Log(msg.Severity, msg.Message);
+            LoggingService.LogToTerminal(msg.Severity, msg.Message);
             return Task.CompletedTask;
         }
     }
