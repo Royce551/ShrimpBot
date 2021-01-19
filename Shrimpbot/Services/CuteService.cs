@@ -5,6 +5,7 @@ using Shrimpbot.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 
@@ -63,15 +64,30 @@ namespace Shrimpbot.Services
         /// <returns>A <see cref="CuteImage"/> representing the returned image.</returns>
         public static CuteImage GetImageFromImageFolder(ImageType type, DatabaseManager manager)
         {
-            var imagePaths = new List<DatabaseImage>();
+            var cuteImages = new List<FolderCuteImage>();
+            var imagePaths = Directory.EnumerateFiles("Images", "*.*", SearchOption.AllDirectories).Where(x => Path.GetExtension(x) != ".info");
+            foreach (var path in imagePaths)
+            {
+                var infoPath = Path.Combine(Path.GetDirectoryName(path), $"{Path.GetFileNameWithoutExtension(path)}.info");
+                if (File.Exists(infoPath))
+                {
+                    var fields = File.ReadAllText(infoPath).Split(';');
+                    cuteImages.Add(new FolderCuteImage
+                    {
+                        Path = path,
+                        Type = ParseImageType(fields[1]),
+                        Creator = fields[2],
+                        ImageSource = fields[3],
+                        FileSource = ImageSource.Curated
+                    });
+                } 
+            }
+            var selectedImages = new List<FolderCuteImage>();
+            if (type == ImageType.All || type == ImageType.Anime) selectedImages.AddRange(cuteImages.Where(x => x.Type == ImageType.Anime).ToList());
+            if (type == ImageType.All || type == ImageType.Anime || type == ImageType.Catgirls) selectedImages.AddRange(cuteImages.Where(x => x.Type == ImageType.Catgirls).ToList());
 
-            if (type == ImageType.All || type == ImageType.Anime) imagePaths.AddRange(manager.GetImages(ImageType.Anime));
-            if (type == ImageType.All || type == ImageType.Anime || type == ImageType.Catgirls) imagePaths.AddRange(manager.GetImages(ImageType.Catgirls));
-
-            int number = Rng.Next(0, imagePaths.Count - 1);
-            var image = imagePaths[number].Image;
-            image.FileSource = ImageSource.Curated;
-
+            int number = Rng.Next(0, selectedImages.Count - 1);
+            var image = selectedImages[number];
             return image;
         }
         /// <summary>
@@ -159,6 +175,10 @@ namespace Shrimpbot.Services
                 await context.Channel.SendFileAsync(new FileStream(Path, FileMode.Open), path, embed: embed);
             }
         }
+    }
+    public class FolderCuteImage : CuteImage
+    {
+        public ImageType Type { get; init; }
     }
     public enum ImageType
     {

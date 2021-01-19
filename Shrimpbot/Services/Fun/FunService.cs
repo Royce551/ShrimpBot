@@ -100,6 +100,7 @@ namespace Shrimpbot.Services.Fun
             uwuifiedText = uwuifiedText.Replace("? ", '?' + InsertWeebStuff() + ' ');
             return uwuifiedText;
         }
+
         public static string GetRandomParagraph()
         {
             if (!Directory.Exists("Paragraphs")) Directory.CreateDirectory("Paragraphs");
