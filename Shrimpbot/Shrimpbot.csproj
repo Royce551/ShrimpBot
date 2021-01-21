@@ -8,6 +8,10 @@
     <Authors>Squid Grill (and open source contributors)</Authors>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="Services\Database\LoggingService.cs" />
   </ItemGroup>
