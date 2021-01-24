@@ -5,13 +5,14 @@ using Discord.WebSocket;
 using Shrimpbot.Services.Configuration;
 using Shrimpbot.Services.Database;
 using Shrimpbot.Utilities;
+using System;
 using System.Threading.Tasks;
 
 namespace Shrimpbot.Modules
 {
-    [Name("Information")]
-    [Summary("Commands for getting information about users and servers")]
-    public class InformationModule : InteractiveBase
+    [Name("Utility")]
+    [Summary("Some useful commands")]
+    public class UtilityModule : InteractiveBase
     {
         public DiscordSocketClient Client { get; set; }
         public CommandService CommandService { get; set; }
@@ -76,6 +77,34 @@ namespace Shrimpbot.Modules
             if (person is null) imagePath = Context.User.GetAvatarUrl(size: 1024); else imagePath = person.GetAvatarUrl(size: 1024);
             embedBuilder.WithImageUrl(imagePath);
             await ReplyAsync(embed: embedBuilder.Build());
+        }
+        [Command("timer", RunMode = RunMode.Async)]
+        [Summary("Creates a short timer")]
+        public async Task Timer(float length, string unit, string message = null)
+        {
+            var timerLength = unit switch
+            {
+                "second" or "seconds" => TimeSpan.FromSeconds(length),
+                "minute" or "minutes" => TimeSpan.FromMinutes(length),
+                "hour" or "hours" => TimeSpan.FromHours(length),
+                "day" or "days" => TimeSpan.FromDays(length),
+                _ => TimeSpan.FromSeconds(length)
+            };
+            var sendInChannel = PermissionsUtils.CheckForPermissions(Context, GuildPermission.ManageMessages);
+            if (!sendInChannel)
+                await ReplyAsync($"Timer has been set for {timerLength.TotalSeconds} seconds! Since you don't seem to be a moderator, I will send the message in DMs.");
+            else await ReplyAsync($"Timer has been set for {timerLength.TotalSeconds} seconds!");
+            if (timerLength.TotalHours > 1) await ReplyAsync($"If {Config.Name} restarts while the timer is running, the timer will be lost.");
+
+            await Task.Delay(timerLength);
+
+            var embed = MessagingUtils.GetShrimpbotEmbedBuilder();
+            embed.Title = ":alarm_clock: Timer Elapsed";
+            embed.Description = $"{Context.User.Mention}, your timer has elapsed.";
+            if (message != null) embed.AddField("Message", message);
+
+            if (!sendInChannel) await Context.User.SendMessageAsync(embed: embed.Build());
+            else await ReplyAsync(embed: embed.Build());
         }
     }
 }
