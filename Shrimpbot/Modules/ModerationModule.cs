@@ -5,6 +5,7 @@ using Discord.WebSocket;
 using Shrimpbot.Services;
 using Shrimpbot.Services.Configuration;
 using Shrimpbot.Services.Database;
+using Shrimpbot.Utilities;
 using System;
 using System.Threading.Tasks;
 
@@ -19,10 +20,15 @@ namespace Shrimpbot.Modules
         public ConfigurationFile Config { get; set; }
         public DatabaseManager Database { get; set; }
 
-        [Command("manageserver", RunMode = RunMode.Async), RequireUserPermission(GuildPermission.ManageGuild, ErrorMessage = "You don't have permission to run this command.")]
+        [Command("manageserver", RunMode = RunMode.Async)]
         [Summary("Configures a server.")]
         public async Task ManageServer()
         {
+            if (!PermissionsUtils.CheckForPermissions(Context, GuildPermission.Administrator))
+            {
+                await ReplyAsync(MessagingUtils.GetNoPermissionsString());
+                return;
+            }
             var server = Database.GetServer(Context.Guild.Id);
             var navigator = ManagementService.CreateBotModerationNavigator(server, Context.Guild);
 
