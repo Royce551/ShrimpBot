@@ -46,7 +46,7 @@ namespace Shrimpbot.Modules
                     await ReplyAsync("That's not a valid property. If you need to exit, type 'quit'.");
                     continue;
                 }
-                await ReplyAsync(embed: navigator.GetFormattedCurrentPage(Context.User).Build());
+                var x = await ReplyAsync(embed: navigator.GetFormattedCurrentPage(Context.User).Build());
                 while (true)
                 {
                     var pageResponse = await NextMessageAsync(timeout: new TimeSpan(0, 0, 0, 0, -1)); // Infinite timeout

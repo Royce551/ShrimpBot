@@ -70,6 +70,7 @@ namespace Shrimpbot.Modules
         }
         [Command("pic")]
         [Summary("Shows a user's profile picture.")]
+        [Remarks("*`user` - An optional user to get the profile picture for. If not specified, you.")]
         public async Task UserPicture(IUser person = null)
         {
             var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
@@ -80,6 +81,7 @@ namespace Shrimpbot.Modules
         }
         [Command("timer", RunMode = RunMode.Async)]
         [Summary("Creates a short timer")]
+        [Remarks("`length` - Length\n`unit` - A unit of time, can be seconds, minutes, hours, or days\n*`message` - An optional message")]
         public async Task Timer(float length, string unit, string message = null)
         {
             var timerLength = unit switch
@@ -90,6 +92,12 @@ namespace Shrimpbot.Modules
                 "day" or "days" => TimeSpan.FromDays(length),
                 _ => TimeSpan.FromSeconds(length)
             };
+            if (timerLength.Ticks <= 0)
+            {
+                await ReplyAsync($"Timer has to run for longer than 0 seconds");
+                return;
+            }
+
             var sendInChannel = PermissionsUtils.CheckForPermissions(Context, GuildPermission.ManageMessages);
             if (!sendInChannel)
                 await ReplyAsync($"Timer has been set for {timerLength.TotalSeconds} seconds! Since you don't seem to be a moderator, I will send the message in DMs.");

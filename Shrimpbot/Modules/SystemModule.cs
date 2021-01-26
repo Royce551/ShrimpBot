@@ -59,7 +59,16 @@ namespace Shrimpbot.Modules
                 ModuleInfo module = CommandService.Modules.FirstOrDefault(x => x.Name.ToLower().StartsWith(search.ToLower()));
                 if (module is null)
                 {
-                    await ReplyAsync($"{MessagingUtils.InvalidParameterEmote} The category you tried to search for doesn't seem to exist.");
+                    CommandInfo info = CommandService.Commands.FirstOrDefault(y => y.Name.ToLower().StartsWith(search.ToLower()));
+                    if (info is null)
+                    {
+                        await ReplyAsync($"{MessagingUtils.InvalidParameterEmote} The category you tried to search for doesn't seem to exist.");
+                        return;
+                    }
+                    embedBuilder.Title = info.Name;
+                    embedBuilder.Description = info.Summary;
+                    embedBuilder.AddField("Parameters", info.Remarks);
+                    await ReplyAsync(":information_source: **ShrimpBot Help**", embed: embedBuilder.Build());
                     return;
                 }
                 string summary = $"{module.Summary}\r\n\r\n";
