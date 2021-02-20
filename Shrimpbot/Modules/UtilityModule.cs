@@ -2,6 +2,7 @@
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
+using Shrimpbot.Services;
 using Shrimpbot.Services.Configuration;
 using Shrimpbot.Services.Database;
 using Shrimpbot.Utilities;
@@ -18,6 +19,7 @@ namespace Shrimpbot.Modules
         public CommandService CommandService { get; set; }
         public ConfigurationFile Config { get; set; }
         public DatabaseManager Database { get; set; }
+        public BotRuntimeInformation RuntimeInformation { get; set; }
 
         [Command("uinfo")]
         [Summary("Gets information about a user.")]
@@ -98,21 +100,9 @@ namespace Shrimpbot.Modules
                 return;
             }
 
-            var sendInChannel = PermissionsUtils.CheckForPermissions(Context, GuildPermission.ManageMessages);
-            if (!sendInChannel)
-                await ReplyAsync($"Timer has been set for {timerLength.TotalSeconds} seconds! Since you don't seem to be a moderator, I will send the message in DMs.");
-            else await ReplyAsync($"Timer has been set for {timerLength.TotalSeconds} seconds!");
-            if (timerLength.TotalHours > 1) await ReplyAsync($"If {Config.Name} restarts while the timer is running, the timer will be lost.");
-
-            await Task.Delay(timerLength);
-
-            var embed = MessagingUtils.GetShrimpbotEmbedBuilder();
-            embed.Title = ":alarm_clock: Timer Elapsed";
-            embed.Description = $"{Context.User.Mention}, your timer has elapsed.";
-            if (message != null) embed.AddField("Message", message);
-
-            if (!sendInChannel) await Context.User.SendMessageAsync(embed: embed.Build());
-            else await ReplyAsync(embed: embed.Build());
+            await ReplyAsync($"Timer has been set for {timerLength.TotalSeconds} seconds!");
+            RuntimeInformation.Timers.CreateTimer(Context.User, message, timerLength);
+            
         }
     }
 }

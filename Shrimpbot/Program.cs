@@ -16,12 +16,14 @@ namespace Shrimpbot
             var client = new DiscordSocketClient();
             var config = ConfigurationManager.Read();
             var database = new DatabaseManager();
-            var runtimeInformation = new BotRuntimeInformation { StartupTime = DateTime.Now };
+            var runtimeInformation = new BotRuntimeInformation { StartupTime = DateTime.Now, Timers = new TimerService() };
             client.Log += Client_Log;
             var commandHandler = new CommandHandler(client, new CommandService(), config, database, runtimeInformation);
             await commandHandler.InstallCommandsAsync();
             await client.LoginAsync(TokenType.Bot, config.Token);
             await client.StartAsync();
+
+            runtimeInformation.Timers.RestoreTimers();
 
             while (true)
             {
@@ -30,6 +32,7 @@ namespace Shrimpbot
                 {
                     case "quit":
                         database.Database.Dispose();
+                        runtimeInformation.Timers.SaveTimers();
                         LoggingService.LogToTerminal(LogSeverity.Info, $"{config.Name} is shutting down.");
                         return;
                     case "setbotadmin":
@@ -82,5 +85,6 @@ namespace Shrimpbot
     {
         public DateTime StartupTime { get; set; }
         public int CommandsHandled { get; set; }
+        public TimerService Timers { get; set; } 
     }
 }
