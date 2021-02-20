@@ -52,7 +52,7 @@ namespace Shrimpbot.Modules
                 }
                 await ReplyAsync(
                     ":information_source: **Shrimpbot Help**\n" +
-                    $"To get more information about a category, type {Config.Prefix}help [category].", false, embedBuilder.Build());
+                    $"To get more information about a category or command, type {Config.Prefix}help [category].", false, embedBuilder.Build());
             }
             else
             {
@@ -62,12 +62,12 @@ namespace Shrimpbot.Modules
                     CommandInfo info = CommandService.Commands.FirstOrDefault(y => y.Name.ToLower().StartsWith(search.ToLower()));
                     if (info is null)
                     {
-                        await ReplyAsync($"{MessagingUtils.InvalidParameterEmote} The category you tried to search for doesn't seem to exist.");
+                        await ReplyAsync($"{MessagingUtils.InvalidParameterEmote} The category or commandyou tried to search for doesn't seem to exist.");
                         return;
                     }
                     embedBuilder.Title = info.Name;
-                    embedBuilder.Description = info.Summary;
-                    embedBuilder.AddField("Parameters", info.Remarks);
+                    embedBuilder.Description = info.Summary ?? "No description";
+                    if (!string.IsNullOrEmpty(info.Remarks)) embedBuilder.AddField("Parameters", info.Remarks);
                     await ReplyAsync(":information_source: **ShrimpBot Help**", embed: embedBuilder.Build());
                     return;
                 }

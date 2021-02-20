@@ -30,6 +30,9 @@ namespace Shrimpbot.Modules
         }
         [Command("pay")]
         [Summary("Gives someone some money")]
+        [Remarks(
+            "`user` - The user to pay\n" +
+            "`amount` - The amount to pay the user")]
         public async Task Pay(IUser user, decimal amount)
         {
             if (amount <= 0)
@@ -61,6 +64,7 @@ namespace Shrimpbot.Modules
         }
         [Command("gamble")]
         [Summary("Throws your money away in the hopes of doubling your wealth")]
+        [Remarks("`bet` - Bet")]
         public async Task Gamble(decimal bet)
         {
             var runner = Database.GetUser(Context.User.Id);
