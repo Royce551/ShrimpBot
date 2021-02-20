@@ -82,7 +82,7 @@ namespace Shrimpbot.Modules
         [Command("timer", RunMode = RunMode.Async)]
         [Summary("Creates a short timer")]
         [Remarks("`length` - Length\n`unit` - A unit of time, can be seconds, minutes, hours, or days\n*`message` - An optional message")]
-        public async Task Timer(float length, string unit, string message = null)
+        public async Task Timer(float length, string unit, [Remainder] string message = null)
         {
             var timerLength = unit switch
             {
