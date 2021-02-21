@@ -37,11 +37,7 @@ namespace Shrimpbot.Services
             timer.Start();
 
             LoggingService.LogToTerminal(LogSeverity.Verbose, "Timer started");
-            foreach (var xtimer in runningTimers)
-            {
-                LoggingService.LogToTerminal(LogSeverity.Verbose, xtimer.Message);
-                LoggingService.LogToTerminal(LogSeverity.Verbose, xtimer.Elapses.ToString());
-            }
+
         } 
 
         public async Task RestoreTimers()
