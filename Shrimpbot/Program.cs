@@ -7,6 +7,8 @@ using Shrimpbot.Services.Database;
 using System;
 using System.Threading.Tasks;
 
+#nullable enable
+
 namespace Shrimpbot
 {
     class Program
@@ -16,14 +18,15 @@ namespace Shrimpbot
             var client = new DiscordSocketClient();
             var config = ConfigurationManager.Read();
             var database = new DatabaseManager();
-            var runtimeInformation = new BotRuntimeInformation { StartupTime = DateTime.Now, Timers = new TimerService() };
+            var runtimeInformation = new BotRuntimeInformation(DateTime.Now, new TimerService(client));
+
             client.Log += Client_Log;
             var commandHandler = new CommandHandler(client, new CommandService(), config, database, runtimeInformation);
             await commandHandler.InstallCommandsAsync();
             await client.LoginAsync(TokenType.Bot, config.Token);
             await client.StartAsync();
 
-            runtimeInformation.Timers.RestoreTimers();
+            await runtimeInformation.Timers.RestoreTimers();
 
             while (true)
             {
@@ -32,9 +35,10 @@ namespace Shrimpbot
                 {
                     case "quit":
                         database.Database.Dispose();
-                        runtimeInformation.Timers.SaveTimers();
+                        await runtimeInformation.Timers.SaveTimers();
                         LoggingService.LogToTerminal(LogSeverity.Info, $"{config.Name} is shutting down.");
                         return;
+
                     case "setbotadmin":
                         while (true)
                         {
@@ -43,6 +47,7 @@ namespace Shrimpbot
                             {
                                 var user = database.GetUser(result);
                                 user.BotPermissions = BotPermissionLevel.BotAdministrator;
+
                                 database.WriteUser(user);
                                 Console.WriteLine("Permissions set!");
                                 break;
@@ -50,6 +55,7 @@ namespace Shrimpbot
                             else Console.WriteLine("idoit");
                         }
                         break;
+
                     case "setbotowner":
                         while (true)
                         {
@@ -58,6 +64,7 @@ namespace Shrimpbot
                             {
                                 var user = database.GetUser(result);
                                 user.BotPermissions = BotPermissionLevel.Owner;
+
                                 database.WriteUser(user);
                                 Console.WriteLine("Permissions set!");
                                 break;
@@ -65,9 +72,11 @@ namespace Shrimpbot
                             else Console.WriteLine("idoit");
                         }
                         break;
+
                     case "stats":
                         Console.WriteLine($"Commands handled: {runtimeInformation.CommandsHandled}, Uptime - {DateTime.Now - runtimeInformation.StartupTime}");
                         break;
+
                     default:
                         Console.WriteLine("That's not a valid command. Valid commands are quit, setbotadmin, setbotowner, stats.");
                         break;
@@ -83,8 +92,15 @@ namespace Shrimpbot
     }
     public class BotRuntimeInformation
     {
-        public DateTime StartupTime { get; set; }
         public int CommandsHandled { get; set; }
-        public TimerService Timers { get; set; } 
+
+        public DateTime StartupTime { get; }
+        public TimerService Timers { get; }
+
+        public BotRuntimeInformation(DateTime startup, TimerService timers)
+        {
+            StartupTime = startup;
+            Timers = timers;
+        }
     }
 }
