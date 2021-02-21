@@ -11,34 +11,43 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 
+#nullable enable
+
 namespace Shrimpbot.Services
 {
     public class TimerService
     {
-        private List<Timer> runningTimers = new(); //for now get leave it private and later on make a method/property to get info or the timers.
-        private string timerSavePath;
-        public TimerService()
+        private readonly List<Timer> runningTimers = new();
+        private readonly string timerSavePath;
+        private readonly DiscordSocketClient client;
+
+        public TimerService(DiscordSocketClient c)
         {
+            client = c;
             timerSavePath = Path.Combine(Directory.GetCurrentDirectory(), "Database");
         }
         
-        public void CreateTimer(SocketUser creator, string message, TimeSpan elapses)
+        public void CreateTimer(SocketUser creator, string? message, TimeSpan elapses)
         {
             LoggingService.LogToTerminal(LogSeverity.Verbose, "Creating timer");
             var timer = new Timer(creator, message, elapses);
             runningTimers.Add(timer);
+
+            timer.TimerElapsed += TimerElapsed;
             timer.Start();
+
             LoggingService.LogToTerminal(LogSeverity.Verbose, "Timer started");
             foreach (var xtimer in runningTimers)
             {
-                Console.WriteLine(xtimer.Message);
-                Console.WriteLine(xtimer.Elapses.ToString());
+                LoggingService.LogToTerminal(LogSeverity.Verbose, xtimer.Message);
+                LoggingService.LogToTerminal(LogSeverity.Verbose, xtimer.Elapses.ToString());
             }
         } 
+
         public async Task RestoreTimers()
         {
             LoggingService.LogToTerminal(LogSeverity.Verbose, "Restoring timers");
-            if (!File.Exists(Path.Combine(timerSavePath, "timers.json"))) SaveTimers();
+            if (!File.Exists(Path.Combine(timerSavePath, "timers.json"))) await SaveTimers();
 
             using FileStream file = File.OpenRead(Path.Combine(timerSavePath, "timers.json"));
             var timers = await JsonSerializer.DeserializeAsync<List<Timer>>(file);
@@ -46,62 +55,91 @@ namespace Shrimpbot.Services
             {
                 foreach (var timer in timers)
                 {
+                    timer.TimerElapsed += TimerElapsed;
                     timer.Start();
                 }
             }
         }
-        public void SaveTimers()
+
+        public async Task SaveTimers()
         {
             LoggingService.LogToTerminal(LogSeverity.Verbose, "Saving timers...");
+
             if (!Directory.Exists(timerSavePath)) Directory.CreateDirectory(timerSavePath);
             using Stream file = File.OpenWrite(Path.Combine(timerSavePath, "timers.json"));
-            var a = JsonSerializer.SerializeAsync(file, runningTimers);
-            a.Wait();
-            if (a.Exception is not null)
+
+            file.SetLength(0); //Ensures the file is empty, otherwise weird things may happen
+            await file.FlushAsync();
+
+            await JsonSerializer.SerializeAsync(file, runningTimers);
+        }
+
+        private async Task TimerElapsed(Timer sender)
+        {
+            var creator = client.GetUser(sender.CreatorID);
+
+            if (creator is not null)
             {
-                LoggingService.LogToTerminal(LogSeverity.Error, a.Exception.Message);
+                var embed = MessagingUtils.GetShrimpbotEmbedBuilder();
+                embed.Title = ":alarm_clock: Timer Elapsed";
+                embed.Description = $"{creator.Mention}, your timer has elapsed.";
+                if (sender.Message is not null)
+                    embed.AddField("Message", sender.Message);
+
+                runningTimers.Remove(sender);
+
+                await creator.SendMessageAsync(embed: embed.Build());
             }
         }
     }
+
     public class Timer
     {
-        public ulong CreatorID { get; init; }
-        //public SocketUser Creator { get; init; }
-        public string Message { get; init; }
-        public DateTime Elapses { get; init; }
+        public ulong CreatorID { get; }
+        public string? Message { get; }
+        public DateTime Elapses { get; }
+
         [JsonIgnore]
-        public System.Timers.Timer ActualTimer { get; private set; }
-        
-        public Timer(SocketUser creator, string message, TimeSpan elapses)
+        private System.Timers.Timer? actualTimer;
+
+        public event Func<Timer, Task>? TimerElapsed;
+
+        public Timer(SocketUser creator, string? message, TimeSpan elapsesIn)
         {
             CreatorID = creator.Id;
             Message = message;
-            Elapses = DateTime.Now.Add(elapses);
+            Elapses = DateTime.Now.Add(elapsesIn);
         }
+
+        [JsonConstructor]
+        public Timer(ulong creatorID, string? message, DateTime elapses)
+        {
+            CreatorID = creatorID;
+            Message = message;
+            Elapses = elapses;
+        }
+
         public async void Start()
         {
-            ActualTimer = new System.Timers.Timer();
+            actualTimer = new System.Timers.Timer();
             var interval = (Elapses - DateTime.Now).TotalMilliseconds;
             if (interval < 0) 
             {
-                await Ring(); // The timer elapsed while ShrimpBot was offline. Let's at least ring now.
+                await OnTimerElapsed(); // The timer elapsed while ShrimpBot was offline. Let's at least ring now.
                 return;
             }
-            ActualTimer.Interval = interval;
-            ActualTimer.AutoReset = false;
-            ActualTimer.Elapsed += ActualTimer_Elapsed;
-            ActualTimer.Start();
+            actualTimer.Interval = interval;
+            actualTimer.AutoReset = false;
+            actualTimer.Elapsed += ActualTimer_Elapsed;
+            actualTimer.Start();
         }
-        private async Task Ring()
-        {
-            //var creator
-            //var embed = MessagingUtils.GetShrimpbotEmbedBuilder();
-            //embed.Title = ":alarm_clock: Timer Elapsed";
-            //embed.Description = $"{Creator.Mention}, your timer has elapsed.";
-            //if (Message is not null) embed.AddField("Message", Message);
 
-            //await Creator.SendMessageAsync(embed: embed.Build());
+        private async Task OnTimerElapsed()
+        {
+            if (TimerElapsed is not null)
+                await TimerElapsed.Invoke(this);
         }
-        private async void ActualTimer_Elapsed(object sender, ElapsedEventArgs e) => await Ring();
+
+        private async void ActualTimer_Elapsed(object sender, ElapsedEventArgs e) => await OnTimerElapsed();
     }
 }
