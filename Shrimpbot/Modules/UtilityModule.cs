@@ -7,6 +7,8 @@ using Shrimpbot.Services.Configuration;
 using Shrimpbot.Services.Database;
 using Shrimpbot.Utilities;
 using System;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 #nullable enable
@@ -107,6 +109,30 @@ namespace Shrimpbot.Modules
 
             await ReplyAsync($"Timer has been set for {length.TotalSeconds} sec.");
             RuntimeInformation.Timers.CreateTimer(Context.User, message, length);
+        }
+        [Command("timers")]
+        [Summary("Shows you the timers you currently have running")]
+        public async Task Timers()
+        {
+            var timers = RuntimeInformation.Timers.RunningTimers.Where(x => x.CreatorID == Context.User.Id);
+            if (!timers.Any())
+            {
+                await ReplyAsync("You don't have any running timers.");
+                return;
+            }
+
+            var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
+            embedBuilder.WithTitle("Your running timers");
+            embedBuilder.WithAuthor(Context.User);
+            int i = 1;
+            foreach (var timer in timers)
+            {
+                embedBuilder.AddField($"Timer #{i}",
+                    $"**Elapses**: {timer.Elapses}\n" +
+                    $"**Message**: {timer.Message}", inline: true);
+                i++;
+            }
+            await ReplyAsync(embed: embedBuilder.Build());
         }
     }
 }

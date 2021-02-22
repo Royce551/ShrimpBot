@@ -17,7 +17,7 @@ namespace Shrimpbot.Services
 {
     public class TimerService
     {
-        private readonly List<Timer> runningTimers = new();
+        public List<Timer> RunningTimers { get; private set; } = new();
         private readonly string timerSavePath;
         private readonly DiscordSocketClient client;
 
@@ -31,7 +31,7 @@ namespace Shrimpbot.Services
         {
             LoggingService.LogToTerminal(LogSeverity.Verbose, "Creating timer");
             var timer = new Timer(creator, message, elapses);
-            runningTimers.Add(timer);
+            RunningTimers.Add(timer);
 
             timer.TimerElapsed += TimerElapsed;
             timer.Start();
@@ -67,7 +67,7 @@ namespace Shrimpbot.Services
             file.SetLength(0); //Ensures the file is empty, otherwise weird things may happen
             await file.FlushAsync();
 
-            await JsonSerializer.SerializeAsync(file, runningTimers);
+            await JsonSerializer.SerializeAsync(file, RunningTimers);
         }
 
         private async Task TimerElapsed(Timer sender)
@@ -82,7 +82,7 @@ namespace Shrimpbot.Services
                 if (sender.Message is not null)
                     embed.AddField("Message", sender.Message);
 
-                runningTimers.Remove(sender);
+                RunningTimers.Remove(sender);
 
                 await creator.SendMessageAsync(embed: embed.Build());
             }
