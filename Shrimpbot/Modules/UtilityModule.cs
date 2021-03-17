@@ -107,7 +107,7 @@ namespace Shrimpbot.Modules
                 return;
             }
 
-            await ReplyAsync($"Timer has been set for {length.TotalSeconds} sec.");
+            await ReplyAsync($"Timer has been set for {MessagingUtils.GetLengthString(length)}.");
             RuntimeInformation.Timers.CreateTimer(Context.User, message, length);
         }
         [Command("timers")]
@@ -128,7 +128,7 @@ namespace Shrimpbot.Modules
             foreach (var timer in timers)
             {
                 embedBuilder.AddField($"Timer #{i}",
-                    $"**Elapses**: {timer.Elapses}\n" +
+                    $"**Elapses**: {MessagingUtils.GetLengthString(timer.Elapses - DateTime.Now)}\n" +
                     $"**Message**: {timer.Message}", inline: true);
                 i++;
             }
