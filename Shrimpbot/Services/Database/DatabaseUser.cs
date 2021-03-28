@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LiteDB;
+using System;
 
 namespace Shrimpbot.Services.Database
 {
@@ -16,7 +17,18 @@ namespace Shrimpbot.Services.Database
         /// <summary>
         /// The time zone offset from UTC for this user.
         /// </summary>
-        public double TimeZoneOffset { get; set; } = 0;
+        public double TimeZoneOffset { get; set; } = 420;
+        [BsonIgnore]
+        public DateTime? CurrentTime
+        {
+            get
+            {
+                if (TimeZoneOffset != 420)
+                    return DateTime.UtcNow.AddHours(TimeZoneOffset);
+                else
+                    return null;
+            }
+        }
     }
     public enum BotPermissionLevel
     {

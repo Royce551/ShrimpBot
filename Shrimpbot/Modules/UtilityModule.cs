@@ -96,6 +96,19 @@ namespace Shrimpbot.Modules
             await ReplyAsync(embed: embedBuilder.Build());
         }
 
+        [Command("time")]
+        [Summary("Gets the time for the user's current location.")]
+        [Remarks("*`user` - An optional user to get the time for.")]
+        public async Task Time(IUser? person = null)
+        {
+            var user = Database.GetUser((person ?? Context.User).Id);
+
+            if (user.CurrentTime is not null)
+                await ReplyAsync($":clock10: For {(person ?? Context.User).Username}, it's **{user.CurrentTime:F}**.");
+            else
+                await ReplyAsync($"This user hasn't set their time yet. You can set it in `{Config.Prefix}usersettings`!");
+        }
+
         [Command("timer", RunMode = RunMode.Async)]
         [Summary("Creates a short timer")]
         [Remarks("`length` - Length\n`unit` - A unit of time, can be seconds, minutes, hours, or days\n*`message` - An optional message")]
