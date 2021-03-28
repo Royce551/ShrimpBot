@@ -44,7 +44,7 @@ namespace Shrimpbot.Services
             initialPromptEmbedBuilder.WithAuthor(context.User);
             initialPromptEmbedBuilder.WithDescription($"User Settings");
             initialPromptEmbedBuilder.AddField("The following properties are available to edit:",
-                $"**1** - Nothing here yet! Work in progress!");
+                $"**1** - Time Zone: {User.TimeZoneOffset}");
             initialPromptEmbedBuilder.WithFooter("'quit' - Exit");
             return initialPromptEmbedBuilder;
         }
@@ -55,9 +55,67 @@ namespace Shrimpbot.Services
                 UserProperty.TimeZone => new ManagementPage
                 {
                     PropertyName = "Time zone",
-                    PropertyDescription = "Do not attempt to set this or everything will explode",
+                    PropertyDescription = 
+                    "Your current time zone" +
+                    $"Currently set to {User.TimeZoneOffset}",
                     Prompt =
-                    "set [Time zone ID, for example 'Central Standard Time', or 'US Mountain Standard Time']"
+                    "set [Time zone ID, for example 'Central Standard Time', or 'cst']",
+                    Set = (string arg) =>
+                    {
+                        try
+                        {
+                            var timeZone = TimeZoneInfo.FindSystemTimeZoneById(arg);
+                            User.TimeZoneOffset = timeZone.BaseUtcOffset.TotalHours;
+                            return true;
+                        }
+                        catch (TimeZoneNotFoundException)
+                        {
+                            // ignored, let's try looking for the named timezone instead
+                        }
+
+                        double offset = arg switch
+                        {
+                            "sst" => -11,
+                            "ckt" or "hast" or "taht" => -10,
+                            "akst" or "hadt" => -9,
+                            "pst" or "akdt" => -8,
+                            "mst" or "pdt" => -7,
+                            "cst" or "mdt" => -6,
+                            "cdt" or "est" => -5,
+                            "clt" or "cost" or "ect" or "edt" => -4,
+                            "brt" or "clst" => -3,
+                            "uyst" => -2,
+                            "brst" => -1,
+                            "utc" or "gmt" => 0,
+                            "bst" or "cet" or "ist" or "met" or "wat" => 1,
+                            "cat" or "cest" or "eet" or "ist" or "sast" or "wast" => 2,
+                            "ast" or "eat" or "eest" or "fet" or "idt" or "iot" or "msk" or "trt" => 3,
+                            "irst" => 3.5,
+                            "amt" or "azt" or "get" or "gst" or "mut" or "ret" or "samt" or "sct" or "volt" => 4,
+                            "aft" or "irdt" => 4.5,
+                            "mawt" or "mvt" or "orat" or "pkt" or "tft" or "tmt" or "uzt" or "yekt" => 5,
+                            "ist" or "slst" => 5.5,
+                            "npt" => 5.75,
+                            "bst" or "btt" or "kgt" or "omst" or "vost" => 6,
+                            "cct" or "mmt" => 6.5,
+                            "cxt" or "davt" or "hovt" or "novt" or "ict" or "krat" or "tha" or "wit" => 7,
+                            "awst" or "bdt" or "chot" or "cit" or "cst" or "hkt" or "irkt" or "mst" or "pht" or "sgt" or "wst" => 8,
+                            "eit" or "jst" or "kst" or "yakt" => 9,
+                            "acst" => 9.5,
+                            "aest" or "chst" or "ddut" or "pgt" or "vlat" => 10,
+                            "acdt" or "lhst" => 10.5,
+                            "aedt" or "lhst" or "mist" or "nct" or "sbt" or "vut" => 11,
+                            "fjt" or "mht" or "nzst" => 12,
+                            "nzdt" or "tkt" => 13,
+                            _ => 100 // magic number that will hopefully never be an offset
+                        };
+                        if (offset != 100)
+                        {
+                            User.TimeZoneOffset = offset;
+                            return true;
+                        }
+                        else return false;
+                    }
                 },
                 _ => throw new Exception("fucky wucky")
             };
@@ -73,9 +131,9 @@ namespace Shrimpbot.Services
             initialPromptEmbedBuilder.WithAuthor(context.User);
             initialPromptEmbedBuilder.WithDescription($"{context.Guild.Name} Settings");
             initialPromptEmbedBuilder.AddField("The following properties are available to edit:",
-                $"**1** - Allow potential NSFW in non- NSFW channels - {Server.AllowsPotentialNSFW}\n" +
-                $"**2** - Logging Channel - {Server.LoggingChannel}\n" +
-                $"**3** - System Channel - {Server.SystemChannel}\n");
+                $"**1** - Allow potential NSFW in non- NSFW channels: {Server.AllowsPotentialNSFW}\n" +
+                $"**2** - Logging Channel: {Server.LoggingChannel}\n" +
+                $"**3** - System Channel: {Server.SystemChannel}\n");
             initialPromptEmbedBuilder.WithFooter("'quit' - Exit");
             return initialPromptEmbedBuilder;
         }
