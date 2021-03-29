@@ -103,10 +103,7 @@ namespace Shrimpbot.Modules
         {
             var user = Database.GetUser((person ?? Context.User).Id);
 
-            if (user.CurrentTime is not null)
-                await ReplyAsync($":clock10: For {(person ?? Context.User).Username}, it's **{user.CurrentTime:F}**.");
-            else
-                await ReplyAsync($"This user hasn't set their time yet. You can set it in `{Config.Prefix}usersettings`!");
+            await ReplyAsync($":clock10: For {(person ?? Context.User).Username}, it's **{user.CurrentTime:F}**.");
         }
 
         [Command("timer", RunMode = RunMode.Async)]
@@ -141,7 +138,7 @@ namespace Shrimpbot.Modules
             foreach (var timer in timers)
             {
                 embedBuilder.AddField($"Timer #{i}",
-                    $"**Elapses**: {MessagingUtils.GetLengthString(timer.Elapses - DateTime.Now)}\n" +
+                    $"**Elapses**: {MessagingUtils.GetLengthString(timer.Elapses - DateTime.UtcNow)}\n" +
                     $"**Message**: {timer.Message}", inline: true);
                 i++;
             }

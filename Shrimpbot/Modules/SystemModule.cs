@@ -103,14 +103,14 @@ namespace Shrimpbot.Modules
         [Summary("Shows how long Shrimpbot has been up")]
         public async Task Uptime()
         {
-            var uptime = DateTime.Now - RuntimeInformation.StartupTime;
+            var uptime = DateTime.UtcNow - RuntimeInformation.StartupTime;
             await ReplyAsync($":clock10: {Config.Name} has been up for {uptime.Days} days, {uptime.Hours} hours, {uptime.Minutes} minutes, and {uptime.Seconds} seconds!");
         }
         [Command("stats")]
         [Summary("Shows some interesting information about Shrimpbot")]
         public async Task Stats()
         {
-            var uptime = DateTime.Now - RuntimeInformation.StartupTime;
+            var uptime = DateTime.UtcNow - RuntimeInformation.StartupTime;
             var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
             embedBuilder.AddField($"{Config.Name} stats",
                 $"Uptime: {uptime}\n" +

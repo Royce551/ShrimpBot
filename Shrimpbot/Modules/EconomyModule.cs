@@ -104,7 +104,7 @@ namespace Shrimpbot.Modules
         public async Task Daily()
         {
             var runner = Database.GetUser(Context.User.Id);
-            if (DateTime.Now - runner.DailyLastClaimed >= new TimeSpan(1, 0, 0, 0))
+            if (DateTime.UtcNow - runner.DailyLastClaimed >= new TimeSpan(1, 0, 0, 0))
             {
                 var responses = new string[]
                 {
@@ -117,12 +117,12 @@ namespace Shrimpbot.Modules
                 decimal moneygained = (decimal)Math.Round(50 * runner.DailyBonus);
                 runner.Money += moneygained;
                 runner.DailyBonus += 0.1;
-                runner.DailyLastClaimed = DateTime.Now;
+                runner.DailyLastClaimed = DateTime.UtcNow;
                 await ReplyAsync(string.Format(response, moneygained, Config.Currency));
             }
             else
             {
-                await ReplyAsync($"You already worked for Squid today. Try again in {Math.Round(((runner.DailyLastClaimed + new TimeSpan(1, 0, 0, 0)) - DateTime.Now).TotalHours)} hours.");
+                await ReplyAsync($"You already worked for Squid today. Try again in {MessagingUtils.GetLengthString((runner.DailyLastClaimed + new TimeSpan(1, 0, 0, 0)) - DateTime.UtcNow)}.");
                 return;
             }
             Database.WriteUser(runner);

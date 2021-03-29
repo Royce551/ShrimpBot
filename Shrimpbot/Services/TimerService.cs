@@ -104,7 +104,7 @@ namespace Shrimpbot.Services
         {
             CreatorID = creator.Id;
             Message = message;
-            Elapses = DateTime.Now.Add(elapsesIn);
+            Elapses = DateTime.UtcNow.Add(elapsesIn);
         }
 
         [JsonConstructor]
@@ -118,7 +118,7 @@ namespace Shrimpbot.Services
         public async void Start()
         {
             actualTimer = new System.Timers.Timer();
-            var interval = (Elapses - DateTime.Now).TotalMilliseconds;
+            var interval = (Elapses - DateTime.UtcNow).TotalMilliseconds;
             if (interval < 0) 
             {
                 await OnTimerElapsed(); // The timer elapsed while ShrimpBot was offline. Let's at least ring now.

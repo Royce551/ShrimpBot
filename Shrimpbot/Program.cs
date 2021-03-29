@@ -18,7 +18,7 @@ namespace Shrimpbot
             var client = new DiscordSocketClient();
             var config = ConfigurationManager.Read();
             var database = new DatabaseManager();
-            var runtimeInformation = new BotRuntimeInformation(DateTime.Now, new TimerService(client));
+            var runtimeInformation = new BotRuntimeInformation(DateTime.UtcNow, new TimerService(client));
 
             client.Log += Client_Log;
             var commandHandler = new CommandHandler(client, new CommandService(), config, database, runtimeInformation);
@@ -74,7 +74,7 @@ namespace Shrimpbot
                         break;
 
                     case "stats":
-                        Console.WriteLine($"Commands handled: {runtimeInformation.CommandsHandled}, Uptime - {DateTime.Now - runtimeInformation.StartupTime}");
+                        Console.WriteLine($"Commands handled: {runtimeInformation.CommandsHandled}, Uptime - {DateTime.UtcNow - runtimeInformation.StartupTime}");
                         break;
 
                     default:

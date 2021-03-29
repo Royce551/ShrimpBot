@@ -241,7 +241,7 @@ namespace Shrimpbot.Modules
         {
             var paragraph = FunService.GetRandomParagraph();
             var wordCount = paragraph.Length / 5; // words in typing are 5 letters, regardless of the actual words
-            var startTime = DateTime.Now;
+            var startTime = DateTime.UtcNow;
             var builder = MessagingUtils.GetShrimpbotEmbedBuilder()
                 .WithAuthor(Context.User)
                 .WithTitle($"You have (placeholder) minutes to type this thing! glhf")
@@ -253,7 +253,7 @@ namespace Shrimpbot.Modules
                 var response = await NextMessageAsync(timeout: new TimeSpan(0, 0, 0, 0, -1));
                 if (response.Content == paragraph)
                 {
-                    var timeTaken = DateTime.Now - startTime;
+                    var timeTaken = DateTime.UtcNow - startTime;
                     var wpm = wordCount / timeTaken.TotalMinutes;
                     if (timeTaken.TotalMilliseconds <= wordCount * 200)
                     {
