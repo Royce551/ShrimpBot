@@ -64,9 +64,6 @@ namespace Shrimpbot
             runtimeInformation.CommandsHandled++;
             if (!result.IsSuccess)
                 await context.Channel.SendMessageAsync($"Oopsies! {result.ErrorReason}");
-#if DEBUG
-            await context.Channel.SendMessageAsync("This is the blueprint bot; whatever you do here may not be saved forever.");
-#endif
         }
     }
 }
