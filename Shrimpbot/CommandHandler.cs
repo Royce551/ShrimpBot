@@ -30,6 +30,8 @@ namespace Shrimpbot
             this.config = config;
             this.runtimeInformation = runtimeInformation;
 
+            client.UserJoined += Client_UserJoined;
+
             services = new ServiceCollection()
                 .AddSingleton(config)
                 .AddSingleton(client)
@@ -37,6 +39,25 @@ namespace Shrimpbot
                 .AddSingleton(database)
                 .AddSingleton<InteractiveService>()
                 .BuildServiceProvider();
+        }
+
+        private Task Client_UserJoined(SocketGuildUser arg)
+        {
+            var server = arg.Guild;
+            var databaseServer = database.GetServer(server.Id);
+            try
+            {
+                if (arg.Username.ToLower().Contains("h0nde"))
+                {
+                    arg.BanAsync(reason: "Auto banned because your name was similar to a spam botter, please contact Squid Grill#6238 if this is wrong.");
+                    (server.GetChannel(databaseServer.LoggingChannel) as SocketTextChannel)?.SendMessageAsync("I just banned a potential spambotter, check audit logs for details");
+                }
+            }
+            catch
+            {
+                // ignored
+            }
+            return Task.CompletedTask;
         }
 
         public async Task InstallCommandsAsync()
