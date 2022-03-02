@@ -49,5 +49,16 @@ namespace Shrimpbot.Modules
             }
             Database.ExecuteSql(sql);
         }
+        [Command("addparagraph")]
+        public async Task AddParagraph(string name, string paragraph)
+        {
+            var runner = Database.GetUser(Context.User.Id);
+            if (runner.BotPermissions < BotPermissionLevel.BotAdministrator)
+            {
+                await ReplyAsync(MessagingUtils.GetNoPermissionsString());
+                return;
+            }
+            await System.IO.File.WriteAllTextAsync($"Paragraphs/{name}.txt", paragraph);
+        }
     }
 }

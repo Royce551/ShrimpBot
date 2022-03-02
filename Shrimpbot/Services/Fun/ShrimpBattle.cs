@@ -22,7 +22,7 @@ namespace Shrimpbot.Services.Fun
             builder.AddField(Enemy.Name,
                 $":hearts: **Health**: {Enemy.Health}\n" +
                 $":magic_wand: **Mana**: {Enemy.Mana}\n");
-            builder.WithFooter("a - Attack; m - Use offensive magic; h - Use healing magic; f or quit - Flee");
+            builder.WithFooter($"a - Attack; m - Use offensive magic ({ShrimpBattlePerson.ManaNeededForOffensiveMagic} mana); h - Use healing magic ({ShrimpBattlePerson.ManaNeededForHealingMagic} mana); f or quit - Flee");
             return builder;
         }
         public (ShrimpBattleTurnResults proResults, ShrimpBattleTurnResults eneResults) DoTurn(ShrimpBattleActionType action)
@@ -95,7 +95,7 @@ namespace Shrimpbot.Services.Fun
         public bool IsDead() => Health <= 0;
 
         public const int ManaNeededForOffensiveMagic = 5;
-        public const int ManaNeededForHealingMagic = 30;
+        public const int ManaNeededForHealingMagic = 20;
         public ShrimpBattleTurnResults Attack(Random rng, ref ShrimpBattlePerson target)
         {
             var results = new ShrimpBattleTurnResults();

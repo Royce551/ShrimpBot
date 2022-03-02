@@ -101,7 +101,7 @@ namespace Shrimpbot.Services.Fun
             return uwuifiedText;
         }
 
-        public static string GetRandomParagraph()
+        public static (string spaceParagraph, string normalParagraph) GetRandomParagraphWithSpaces()
         {
             if (!Directory.Exists("Paragraphs")) Directory.CreateDirectory("Paragraphs");
             var textFiles = Directory.EnumerateFiles("Paragraphs", "*.txt").ToList();
@@ -110,7 +110,13 @@ namespace Shrimpbot.Services.Fun
             {
                 paragraphs.Add(File.ReadAllText(textFile));
             }
-            return paragraphs[rng.Next(0, paragraphs.Count - 1)];
+            var selectedParagraph = paragraphs[rng.Next(0, paragraphs.Count - 1)];
+            var antiCheatParagraph = selectedParagraph;
+            for (int i = 0; i < 20; i++)
+            {                                                              // that's a 0 width space (U+200B) v
+                antiCheatParagraph = antiCheatParagraph.Insert(Random.Shared.Next(antiCheatParagraph.Length), "​");
+            }
+            return (antiCheatParagraph, selectedParagraph);
         }
         public static ShrimpBattle CreateBattle(string userName)
         {

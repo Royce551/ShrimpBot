@@ -239,27 +239,22 @@ namespace Shrimpbot.Modules
         [Summary("mechanical keyboard sounds intensify")]
         public async Task TypeRace()
         {
-            var paragraph = FunService.GetRandomParagraph();
-            var wordCount = paragraph.Length / 5; // words in typing are 5 letters, regardless of the actual words
+            var paragraph = FunService.GetRandomParagraphWithSpaces();
+            var wordCount = paragraph.normalParagraph.Length / 5; // words in typing are 5 letters, regardless of the actual words
             var startTime = DateTime.UtcNow;
             var builder = MessagingUtils.GetShrimpbotEmbedBuilder()
                 .WithAuthor(Context.User)
                 .WithTitle($"You have (placeholder) minutes to type this thing! glhf")
-                .WithDescription(paragraph)
+                .WithDescription(paragraph.spaceParagraph)
                 .WithFooter($"quit - Exit");
             await ReplyAsync(embed: builder.Build());
             while (true)
             {
                 var response = await NextMessageAsync(timeout: new TimeSpan(0, 0, 0, 0, -1));
-                if (response.Content == paragraph)
+                if (response.Content == paragraph.normalParagraph)
                 {
                     var timeTaken = DateTime.UtcNow - startTime;
                     var wpm = wordCount / timeTaken.TotalMinutes;
-                    if (timeTaken.TotalMilliseconds <= wordCount * 200)
-                    {
-                        await ReplyAsync($"I CAN SEE THROUGH YOUR BS YOU HACKER");
-                        continue;
-                    }
                     await ReplyAsync($"Congrats! You took {timeTaken:mm\\:ss} and typed {Math.Round(wpm)} wpm.");
                     return;
                 }
@@ -268,7 +263,11 @@ namespace Shrimpbot.Modules
                     await ReplyAsync("You quit.");
                     return;
                 }
-                else await ReplyAsync("Looks like you made a mistake.");
+                else
+                {
+                    if (response.Content == paragraph.spaceParagraph) await ReplyAsync("HA! I SAW THROUGH YOUR BS, HACKER!");
+                    else await ReplyAsync("Looks like you made a mistake.");
+                }
             }
         }
         [Command("test", RunMode = RunMode.Async)]
