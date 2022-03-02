@@ -133,7 +133,7 @@ namespace Shrimpbot.Modules
         {
             var embedBuilder = MessagingUtils.GetShrimpbotEmbedBuilder();
             List<DatabaseUser> users = Database.GetAllUsers();
-            if (users.Count >= 10) users = users.GetRange(0, 10).OrderByDescending(o => o.Money).ToList();
+            if (users.Count >= 10) users = users.OrderByDescending(o => o.Money).ToList().GetRange(0, 10).ToList();
             else users = users.OrderByDescending(o => o.Money).ToList();
             var stringBuilder = new StringBuilder();
             int i = 1;
