@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Shrimpbot.Services.Fun
 {
@@ -10,8 +11,6 @@ namespace Shrimpbot.Services.Fun
     /// </summary>
     public static class FunService
     {
-        static readonly Random rng = new Random();
-
         public static string GetEightBall()
         {
             var responses = new string[]
@@ -38,51 +37,31 @@ namespace Shrimpbot.Services.Fun
                 "Very doubtful."
             };
 
-            return responses[rng.Next(0, responses.Length - 1)];
+            return responses[Random.Shared.Next(0, responses.Length - 1)];
         }
 
         public static string Uwuify(string text)
         {
-            var kaomoji = new string[]
+            var endings = new string[]
             {
-                "(◡ ω ◡)",
-                "(˘ω˘)",
-                "(⑅˘꒳˘)",
-                "(˘ᵕ˘)",
-                "(˘˘˘)",
-                "( ᴜ ω ᴜ )",
-                "( ´ω` )۶",
-                "(„ᵕᴗᵕ„)",
-                "(ㅅꈍ ˘ ꈍ)",
-                "(⑅˘꒳˘)",
-                "( ｡ᵘ ᵕ ᵘ ｡)",
-                "( ᵘ ꒳ ᵘ ✼)",
-                "( ˘ᴗ˘ )",
-                "(ᵕᴗ ᵕ⁎)",
-                "*:･ﾟ✧(ꈍᴗꈍ)✧･ﾟ:*",
-                "*˚*(ꈍ ω ꈍ).₊̣̇.",
-                "(。U ω U。)",
-                "(U ᵕ U❁)",
-                "(◦ᵕ ˘ ᵕ◦)",
-                "( ˊ.ᴗˋ )",
-                "(灬´ᴗ`灬)",
-                "uwu",
-                "owo",
-            };
-            var weebPhrases = new string[]
-            {
+                " :P",
+                " :3",
+                " x3",
+                " XDDDD",
+                "（＾ｖ＾）",
+                "(●´ω｀●)",
+                " uwu",
+                " owo",
                 " nyaa~",
                 " wan wan~!",
                 "~",
-                " Nyaa~"
+                " nyaa~",
+                "... fwendo",
             };
             var uwuifiedText = string.Empty;
             string InsertWeebStuff()
             {
-                var number = rng.Next(0, 2);
-                if (number == 0) return $" {kaomoji[rng.Next(0, kaomoji.Length - 1)]}";
-                else if (number == 1) return weebPhrases[rng.Next(0, weebPhrases.Length - 1)];
-                else return string.Empty;
+                return $"{endings[Random.Shared.Next(0, endings.Length - 1)]}";
             }
             foreach (char x in text)
             {
@@ -95,9 +74,15 @@ namespace Shrimpbot.Services.Fun
                     _ => x
                 };
             }
-            uwuifiedText = uwuifiedText.Replace("! ", '!' + InsertWeebStuff() + ' ');
-            uwuifiedText = uwuifiedText.Replace(". ", '.' + InsertWeebStuff() + ' ');
-            uwuifiedText = uwuifiedText.Replace("? ", '?' + InsertWeebStuff() + ' ');
+
+            uwuifiedText = uwuifiedText.Replace("no", "nu");
+            uwuifiedText = uwuifiedText.Replace("have", "haz");
+            uwuifiedText = uwuifiedText.Replace("has", "haz");
+            uwuifiedText = uwuifiedText.Replace("you", "uu");
+
+            uwuifiedText = Regex.Replace(uwuifiedText, @"\b[Tt]he\b", "da");
+
+            uwuifiedText += InsertWeebStuff() + ' ';
             return uwuifiedText;
         }
 
@@ -110,7 +95,7 @@ namespace Shrimpbot.Services.Fun
             {
                 paragraphs.Add(File.ReadAllText(textFile));
             }
-            var selectedParagraph = paragraphs[rng.Next(0, paragraphs.Count - 1)];
+            var selectedParagraph = paragraphs[Random.Shared.Next(0, paragraphs.Count - 1)];
             var antiCheatParagraph = selectedParagraph;
             for (int i = 0; i < 20; i++)
             {                                                              // that's a 0 width space (U+200B) v
@@ -126,7 +111,7 @@ namespace Shrimpbot.Services.Fun
                 Name = userName,
                 Emote = ":smiley:"
             };
-            int enemyType = rng.Next(1, 6);
+            int enemyType = Random.Shared.Next(1, 6);
             battle.Enemy = new ShrimpBattlePerson
             {
                 Name = enemyType switch
@@ -147,7 +132,7 @@ namespace Shrimpbot.Services.Fun
                     5 => "<:bancat:765320197744623666>",
                     _ => "???"
                 },
-                Health = rng.Next(75, 105),
+                Health = Random.Shared.Next(75, 105),
             };
             return battle;
         }
