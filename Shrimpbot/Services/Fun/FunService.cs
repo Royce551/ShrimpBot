@@ -95,7 +95,7 @@ namespace Shrimpbot.Services.Fun
             {
                 paragraphs.Add(File.ReadAllText(textFile));
             }
-            var selectedParagraph = paragraphs[Random.Shared.Next(0, paragraphs.Count - 1)];
+            var selectedParagraph = paragraphs[Random.Shared.Next(0, paragraphs.Count)];
             var antiCheatParagraph = selectedParagraph;
             for (int i = 0; i < 20; i++)
             {                                                              // that's a 0 width space (U+200B) v
